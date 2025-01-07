@@ -30,6 +30,7 @@ const SetupForm: React.FC<SetupFormProps> = ({ onSetupComplete }) => {
                   Location
                 </label>
                 <input
+                  placeholder="Location"
                   type="text"
                   value={setupInfo.location}
                   onChange={(e) =>
@@ -47,6 +48,7 @@ const SetupForm: React.FC<SetupFormProps> = ({ onSetupComplete }) => {
                   Supplier
                 </label>
                 <input
+                  placeholder="Supplier"
                   type="text"
                   value={setupInfo.supplier}
                   onChange={(e) =>

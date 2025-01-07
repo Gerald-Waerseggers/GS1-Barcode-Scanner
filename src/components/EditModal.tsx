@@ -10,7 +10,12 @@ interface EditModalProps {
   onSave: (scan: ScanRecord) => void;
 }
 
-const EditModal: React.FC<EditModalProps> = ({ isOpen, onClose, scan, onSave }) => {
+const EditModal: React.FC<EditModalProps> = ({
+  isOpen,
+  onClose,
+  scan,
+  onSave,
+}) => {
   const [editedScan, setEditedScan] = useState<ScanRecord | null>(scan);
 
   useEffect(() => {
@@ -33,6 +38,7 @@ const EditModal: React.FC<EditModalProps> = ({ isOpen, onClose, scan, onSave }) 
           <div className="flex justify-between items-center mb-4">
             <DialogTitle className="text-xl font-bold">Edit Scan</DialogTitle>
             <button
+              title="Close"
               onClick={onClose}
               className="text-gray-500 hover:text-gray-700"
             >
@@ -47,6 +53,7 @@ const EditModal: React.FC<EditModalProps> = ({ isOpen, onClose, scan, onSave }) 
                   GTIN
                 </label>
                 <input
+                  placeholder="GTIN"
                   type="text"
                   value={editedScan?.gtin || ""}
                   onChange={(e) =>
@@ -63,6 +70,7 @@ const EditModal: React.FC<EditModalProps> = ({ isOpen, onClose, scan, onSave }) 
                   Batch/Lot
                 </label>
                 <input
+                  placeholder="Batch/Lot"
                   type="text"
                   value={editedScan?.batchLot || ""}
                   onChange={(e) =>
@@ -79,6 +87,7 @@ const EditModal: React.FC<EditModalProps> = ({ isOpen, onClose, scan, onSave }) 
                   Expiration Date
                 </label>
                 <input
+                  placeholder="Expiration Date"
                   type="date"
                   value={editedScan?.expirationDate || ""}
                   onChange={(e) =>

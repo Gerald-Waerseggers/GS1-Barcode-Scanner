@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { parseGS1 } from "./utils/gs1Parser";
 import { Download, Trash2, ScanLine } from "lucide-react";
 
@@ -163,7 +163,11 @@ export default function BarcodeScanner() {
 
           <ScanInputForm onScan={handleScan} error={error} />
 
-          <ScansGrid scans={scans} onEdit={handleEdit} onDelete={handleDelete} />
+          <ScansGrid
+            scans={scans}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+          />
         </div>
       </div>
       <EditModal
