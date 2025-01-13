@@ -18,6 +18,13 @@ interface ActionCellRendererProps {
   onDelete: (scan: ScanRecord) => void;
 }
 
+interface QuantityCellRendererProps {
+  data: ScanRecord;
+  node: {
+    setDataValue: (field: string, value: number) => void;
+  };
+}
+
 const ActionCellRenderer: React.FC<ActionCellRendererProps> = (props) => {
   const { data, onEdit, onDelete } = props;
   return (
@@ -40,6 +47,25 @@ const ActionCellRenderer: React.FC<ActionCellRendererProps> = (props) => {
   );
 };
 
+const QuantityCellRenderer: React.FC<QuantityCellRendererProps> = (props) => {
+  const { data } = props;
+  if (!data.quantity && data.quantity !== 0) {
+    return (
+      <input
+        aria-label="Quantity"
+        type="number"
+        min="0"
+        className="w-full h-full px-2 border rounded"
+        onBlur={(e) => {
+          const newValue = parseInt(e.target.value) || 0;
+          props.node.setDataValue("quantity", newValue);
+        }}
+      />
+    );
+  }
+  return data.quantity;
+};
+
 const ScansGrid: React.FC<ScansGridProps> = ({ scans, onEdit, onDelete }) => {
   const columnDefs = [
     {
@@ -52,12 +78,18 @@ const ScansGrid: React.FC<ScansGridProps> = ({ scans, onEdit, onDelete }) => {
     { field: "supplier", headerName: "Supplier" },
     { field: "gtin", headerName: "GTIN" },
     { field: "batchLot", headerName: "Batch/Lot" },
+    {
+      field: "quantity",
+      headerName: "Quantity",
+      type: "numericColumn",
+      editable: (params: { data: ScanRecord }) => !params.data.quantity,
+      cellRenderer: QuantityCellRenderer,
+    },
     { field: "expirationDate", headerName: "Expiration Date" },
     {
       headerName: "Actions",
       field: "actions",
       cellClass: "h-full",
-      className: "flex justify-center align-middle items-center h-full",
       cellRenderer: ActionCellRenderer,
       cellRendererParams: {
         onEdit,
@@ -84,6 +116,7 @@ const ScansGrid: React.FC<ScansGridProps> = ({ scans, onEdit, onDelete }) => {
       <div className=" w-full">
         <AgGridReact<ScanRecord>
           theme={themeQuartz}
+          loadThemeGoogleFonts={true}
           rowData={scans}
           columnDefs={columnDefs as ColDef<ScanRecord>[]}
           defaultColDef={defaultColDef}
@@ -92,7 +125,6 @@ const ScansGrid: React.FC<ScansGridProps> = ({ scans, onEdit, onDelete }) => {
             ActionCellRenderer: ActionCellRenderer,
           }}
           animateRows={true}
-          rowSelection="multiple"
           suppressCellFocus={true}
           domLayout="autoHeight"
         />

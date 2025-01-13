@@ -84,6 +84,26 @@ const EditModal: React.FC<EditModalProps> = ({
 
               <div>
                 <label className="block text-sm font-medium text-gray-700">
+                  Quantity
+                </label>
+                <input
+                  placeholder="Quantity"
+                  type="number"
+                  min="0"
+                  value={editedScan?.quantity || ""}
+                  onChange={(e) =>
+                    setEditedScan((prev) =>
+                      prev
+                        ? { ...prev, quantity: parseInt(e.target.value) || 0 }
+                        : prev
+                    )
+                  }
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
                   Expiration Date
                 </label>
                 <input

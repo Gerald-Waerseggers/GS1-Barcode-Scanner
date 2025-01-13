@@ -4,10 +4,11 @@ export interface ScanSetup {
   }
   
   export interface ScanRecord {
-    timestamp: string;
-    gtin?: string;
-    batchLot?: string;
-    expirationDate?: string;
-    location: string;
-    supplier: string;
+  timestamp: string;
+  gtin?: string;
+  batchLot?: string;
+  quantity?: number;
+  expirationDate?: string;
+  location: string;
+  supplier: string;
   }
