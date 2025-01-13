@@ -81,7 +81,7 @@ const ScansGrid: React.FC<ScansGridProps> = ({ scans, onEdit, onDelete }) => {
 
   return (
     <div className="overflow-x-auto">
-      <div className="h-[600px] w-full">
+      <div className=" w-full">
         <AgGridReact<ScanRecord>
           theme={themeQuartz}
           rowData={scans}

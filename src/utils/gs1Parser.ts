@@ -1,4 +1,7 @@
 // GS1 Application Identifier parser
+
+import { parseBarcode } from "./BarcodeParser";
+
 interface ParsedGS1Data {
   gtin?: string;
   batchLot?: string;
@@ -8,91 +11,53 @@ interface ParsedGS1Data {
 }
 
 export function parseGS1(barcode: string): ParsedGS1Data {
-  const result: ParsedGS1Data = {};
+  try {
+    // Remove parentheses from the barcode before parsing
+    const cleanBarcode = barcode.replace(/[()]/g, "");
 
-  // Check if the barcode uses parentheses format
-  if (barcode.includes("(")) {
-    // Handle parentheses format
-    const aiPattern = /\((\d{2})\)([^(]+)/g;
-    let match;
+    // Use the existing parser to get detailed parsing
+    const parsed = parseBarcode(cleanBarcode);
+    const result: ParsedGS1Data = {};
+    console.log(result);
 
-    while ((match = aiPattern.exec(barcode)) !== null) {
-      const [, ai, value] = match;
-      handleAI(ai, value, result);
-    }
-  } else {
-    // Handle format without parentheses
-    let position = 0;
-    while (position < barcode.length) {
-      const ai = barcode.substring(position, position + 2);
-      position += 2;
-
-      switch (ai) {
-        case "01": {
-          const gtin = barcode.substring(position, position + 14);
-          handleAI(ai, gtin, result);
-          position += 14;
+    // Map the parsed elements to our simplified format
+    for (const item of parsed.parsedCodeItems) {
+      switch (item.ai) {
+        case "01": // GTIN
+          result.gtin = item.raw;
           break;
-        }
-        case "10": {
-          const batchEnd = barcode.indexOf("\x1D", position);
-          const batchValue = barcode.substring(
-            position,
-            batchEnd > -1 ? batchEnd : undefined
-          );
-          handleAI(ai, batchValue, result);
-          position += batchValue.length;
+        case "10": // Batch/Lot
+          result.batchLot = item.raw;
           break;
-        }
         case "17": {
-          const expiry = barcode.substring(position, position + 6);
-          handleAI(ai, expiry, result);
-          position += 6;
+          // Expiration Date
+          if (item.data instanceof Date) {
+            const date = item.data;
+            const year = date.getFullYear().toString().padStart(4, "0");
+            const month = (date.getMonth() + 1).toString().padStart(2, "0");
+            const day = date.getDate().toString().padStart(2, "0");
+            result.expirationDate = `${year}-${month}-${day}`;
+          }
           break;
         }
-        case "21": {
-          const serialEnd = barcode.indexOf("\x1D", position);
-          const serialValue = barcode.substring(
-            position,
-            serialEnd > -1 ? serialEnd : undefined
-          );
-          handleAI(ai, serialValue, result);
-          position += serialValue.length;
+        case "21": // Serial Number
+          result.serialNumber = item.raw;
           break;
+        default: {
+          // Handle any other AIs by using their AI number as the key
+          const key = `ai${item.ai}`;
+          result[key] =
+            typeof item.data === "object" ? item.raw : item.data.toString();
         }
       }
-
-      if (position < barcode.length && barcode[position] === "\x1D") {
-        position++;
-      }
     }
-  }
 
-  if (Object.keys(result).length === 0) {
-    throw new Error("Invalid GS1 barcode format");
-  }
-
-  return result;
-}
-
-function handleAI(ai: string, value: string, result: ParsedGS1Data) {
-  switch (ai) {
-    case "01": // GTIN
-      result.gtin = value;
-      break;
-    case "10": // Batch/Lot
-      result.batchLot = value;
-      break;
-    case "17": {
-      // Expiration Date
-      const year = value.slice(0, 2);
-      const month = value.slice(2, 4);
-      const day = value.slice(4, 6);
-      result.expirationDate = `20${year}-${month}-${day}`;
-      break;
+    if (Object.keys(result).length === 0) {
+      throw new Error("No valid GS1 elements found");
     }
-    case "21": // Serial Number
-      result.serialNumber = value;
-      break;
+
+    return result;
+  } catch (error) {
+    throw new Error(`Invalid GS1 barcode format: ${error}`);
   }
 }

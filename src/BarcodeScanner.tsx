@@ -113,7 +113,7 @@ export default function BarcodeScanner() {
   return (
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-7xl mx-auto">
-        <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+        <div className="bg-white rounded-lg shadow-lg p-6 mb-6 h-fit">
           <div className="flex items-center justify-between mb-4 p-3 bg-gray-50 rounded-md">
             <div className="flex gap-4">
               <div>
