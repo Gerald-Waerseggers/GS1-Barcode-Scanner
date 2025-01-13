@@ -4,6 +4,7 @@ import { AgGridReact } from "ag-grid-react";
 import { ScanRecord } from "../types";
 import { Pencil, Trash2 } from "lucide-react";
 import { ColDef, themeQuartz } from "ag-grid-community";
+import { Button } from "@headlessui/react";
 
 interface ScansGridProps {
   scans: ScanRecord[];
@@ -29,20 +30,20 @@ const ActionCellRenderer: React.FC<ActionCellRendererProps> = (props) => {
   const { data, onEdit, onDelete } = props;
   return (
     <div className="flex justify-center align-middle items-center h-full gap-2">
-      <button
+      <Button
         onClick={() => onEdit(data)}
         className="p-1 text-blue-600 hover:text-blue-800"
         title="Edit"
       >
         <Pencil className="w-4 h-4" />
-      </button>
-      <button
+      </Button>
+      <Button
         onClick={() => onDelete(data)}
         className="p-1 text-red-600 hover:text-red-800"
         title="Delete"
       >
         <Trash2 className="w-4 h-4" />
-      </button>
+      </Button>
     </div>
   );
 };

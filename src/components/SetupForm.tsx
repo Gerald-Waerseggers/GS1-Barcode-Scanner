@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { ScanSetup } from "../types";
+import { Button } from "@headlessui/react";
 
 interface SetupFormProps {
   onSetupComplete: (setupInfo: ScanSetup) => void;
@@ -61,12 +62,12 @@ const SetupForm: React.FC<SetupFormProps> = ({ onSetupComplete }) => {
                   required
                 />
               </div>
-              <button
+              <Button
                 type="submit"
                 className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
               >
                 Start Scanning
-              </button>
+              </Button>
             </div>
           </form>
         </div>

@@ -1,32 +1,44 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Button, Dialog, DialogPanel, DialogTitle } from "@headlessui/react";
 import { XIcon } from "lucide-react";
-import { ScanRecord } from "../types";
+import { ScanRecord, ScanSetup } from "../types";
 
-interface EditModalProps {
+interface AddModalProps {
   isOpen: boolean;
   onClose: () => void;
-  scan: ScanRecord | null;
+  setupInfo: ScanSetup;
   onSave: (scan: ScanRecord) => void;
 }
 
-const EditModal: React.FC<EditModalProps> = ({
+const AddModal: React.FC<AddModalProps> = ({
   isOpen,
   onClose,
-  scan,
+  setupInfo,
   onSave,
 }) => {
-  const [editedScan, setEditedScan] = useState<ScanRecord | null>(scan);
+  const defaultScan: ScanRecord = {
+    timestamp: new Date().toISOString(),
+    gtin: "",
+    batchLot: "",
+    expirationDate: "",
+    quantity: undefined,
+    location: setupInfo.location,
+    supplier: setupInfo.supplier,
+  };
 
-  useEffect(() => {
-    setEditedScan(scan);
-  }, [scan]);
+  const [newScan, setNewScan] = useState<ScanRecord>(defaultScan);
+
+  // Reset form when modal opens
+  React.useEffect(() => {
+    if (isOpen) {
+      setNewScan(defaultScan);
+    }
+  }, [isOpen, setupInfo]);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (editedScan) {
-      onSave(editedScan);
-    }
+    onSave(newScan);
+    onClose();
   };
 
   return (
@@ -36,7 +48,9 @@ const EditModal: React.FC<EditModalProps> = ({
       <div className="fixed inset-0 flex items-center justify-center p-4">
         <DialogPanel className="bg-white rounded-lg p-6 w-full max-w-md">
           <div className="flex justify-between items-center mb-4">
-            <DialogTitle className="text-xl font-bold">Edit Scan</DialogTitle>
+            <DialogTitle className="text-xl font-bold">
+              Add New Scan
+            </DialogTitle>
             <Button
               title="Close"
               onClick={onClose}
@@ -55,11 +69,9 @@ const EditModal: React.FC<EditModalProps> = ({
                 <input
                   placeholder="GTIN"
                   type="text"
-                  value={editedScan?.gtin || ""}
+                  value={newScan.gtin || ""}
                   onChange={(e) =>
-                    setEditedScan((prev) =>
-                      prev ? { ...prev, gtin: e.target.value } : prev
-                    )
+                    setNewScan((prev) => ({ ...prev, gtin: e.target.value }))
                   }
                   className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
                 />
@@ -72,11 +84,12 @@ const EditModal: React.FC<EditModalProps> = ({
                 <input
                   placeholder="Batch/Lot"
                   type="text"
-                  value={editedScan?.batchLot || ""}
+                  value={newScan.batchLot || ""}
                   onChange={(e) =>
-                    setEditedScan((prev) =>
-                      prev ? { ...prev, batchLot: e.target.value } : prev
-                    )
+                    setNewScan((prev) => ({
+                      ...prev,
+                      batchLot: e.target.value,
+                    }))
                   }
                   className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
                 />
@@ -90,13 +103,12 @@ const EditModal: React.FC<EditModalProps> = ({
                   placeholder="Quantity"
                   type="number"
                   min="0"
-                  value={editedScan?.quantity || ""}
+                  value={newScan.quantity || ""}
                   onChange={(e) =>
-                    setEditedScan((prev) =>
-                      prev
-                        ? { ...prev, quantity: parseInt(e.target.value) || 0 }
-                        : prev
-                    )
+                    setNewScan((prev) => ({
+                      ...prev,
+                      quantity: parseInt(e.target.value) || undefined,
+                    }))
                   }
                   className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
                 />
@@ -109,11 +121,12 @@ const EditModal: React.FC<EditModalProps> = ({
                 <input
                   placeholder="Expiration Date"
                   type="date"
-                  value={editedScan?.expirationDate || ""}
+                  value={newScan.expirationDate || ""}
                   onChange={(e) =>
-                    setEditedScan((prev) =>
-                      prev ? { ...prev, expirationDate: e.target.value } : prev
-                    )
+                    setNewScan((prev) => ({
+                      ...prev,
+                      expirationDate: e.target.value,
+                    }))
                   }
                   className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
                 />
@@ -125,7 +138,7 @@ const EditModal: React.FC<EditModalProps> = ({
                 type="submit"
                 className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
               >
-                Save Changes
+                Add
               </Button>
               <Button
                 type="button"
@@ -142,4 +155,4 @@ const EditModal: React.FC<EditModalProps> = ({
   );
 };
 
-export default EditModal;
+export default AddModal;

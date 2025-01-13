@@ -7,6 +7,9 @@ import SetupForm from "./components/SetupForm";
 import ScanInputForm from "./components/ScanInputForm";
 import ScansGrid from "./components/ScansGrid";
 import { ScanSetup, ScanRecord } from "./types";
+import AddModal from "./components/AddModal";
+import DeleteModal from "./components/DeleteModal";
+import { Button } from "@headlessui/react";
 
 export default function BarcodeScanner() {
   const [isSetup, setIsSetup] = useState(false);
@@ -18,6 +21,9 @@ export default function BarcodeScanner() {
   const [error, setError] = useState<string | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingScan, setEditingScan] = useState<ScanRecord | null>(null);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deletingScan, setDeletingScan] = useState<ScanRecord | null>(null);
 
   const handleSetupComplete = (setupInfo: ScanSetup) => {
     setSetupInfo(setupInfo);
@@ -51,9 +57,14 @@ export default function BarcodeScanner() {
   };
 
   const handleDelete = (scan: ScanRecord) => {
-    if (confirm("Are you sure you want to delete this scan?")) {
-      setScans((prev) => prev.filter((s) => s.timestamp !== scan.timestamp));
-    }
+    setDeletingScan(scan);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = (scan: ScanRecord) => {
+    setScans((prev) => prev.filter((s) => s.timestamp !== scan.timestamp));
+    setIsDeleteModalOpen(false);
+    setDeletingScan(null);
   };
 
   const handleEdit = (scan: ScanRecord) => {
@@ -106,6 +117,15 @@ export default function BarcodeScanner() {
     }
   };
 
+  const handleAddManual = () => {
+    setIsAddModalOpen(true);
+  };
+
+  const handleSaveAdd = (newScan: ScanRecord) => {
+    setScans((prev) => [...prev, newScan]);
+    setIsAddModalOpen(false);
+  };
+
   if (!isSetup) {
     return <SetupForm onSetupComplete={handleSetupComplete} />;
   }
@@ -125,12 +145,12 @@ export default function BarcodeScanner() {
                 <span className="ml-2 font-medium">{setupInfo.supplier}</span>
               </div>
             </div>
-            <button
+            <Button
               onClick={() => setIsSetup(false)}
               className="px-3 py-1 text-sm bg-gray-200 hover:bg-gray-300 rounded-md"
             >
               Change Setup
-            </button>
+            </Button>
           </div>
 
           <div className="flex items-center justify-between mb-6">
@@ -142,26 +162,30 @@ export default function BarcodeScanner() {
               </h1>
             </div>
             <div className="flex gap-2">
-              <button
+              <Button
                 onClick={downloadCSV}
                 disabled={scans.length === 0}
                 className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Download className="w-4 h-4" />
                 Export CSV
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={clearScans}
                 disabled={scans.length === 0}
                 className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Trash2 className="w-4 h-4" />
                 Clear All
-              </button>
+              </Button>
             </div>
           </div>
 
-          <ScanInputForm onScan={handleScan} error={error} />
+          <ScanInputForm
+            onScan={handleScan}
+            error={error}
+            onAddManual={handleAddManual}
+          />
 
           <ScansGrid
             scans={scans}
@@ -178,6 +202,21 @@ export default function BarcodeScanner() {
         }}
         scan={editingScan}
         onSave={handleSaveEdit}
+      />
+      <AddModal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        setupInfo={setupInfo}
+        onSave={handleSaveAdd}
+      />
+      <DeleteModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => {
+          setIsDeleteModalOpen(false);
+          setDeletingScan(null);
+        }}
+        scan={deletingScan}
+        onConfirm={handleConfirmDelete}
       />
     </div>
   );

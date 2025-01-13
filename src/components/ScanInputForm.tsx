@@ -1,3 +1,4 @@
+import { Button } from "@headlessui/react";
 import React, { useRef, useEffect } from "react";
 
 interface ScanInputFormProps {
@@ -5,7 +6,9 @@ interface ScanInputFormProps {
   error: string | null;
 }
 
-const ScanInputForm: React.FC<ScanInputFormProps> = ({ onScan, error }) => {
+const ScanInputForm: React.FC<
+  ScanInputFormProps & { onAddManual: () => void }
+> = ({ onScan, error, onAddManual }) => {
   const [input, setInput] = React.useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -31,12 +34,19 @@ const ScanInputForm: React.FC<ScanInputFormProps> = ({ onScan, error }) => {
           placeholder="Scan or type GS1 barcode..."
           autoFocus
         />
-        <button
+        <Button
           type="submit"
           className="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
         >
           Scan
-        </button>
+        </Button>
+        <Button
+          type="button"
+          onClick={onAddManual}
+          className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+        >
+          Manual Entry
+        </Button>
       </div>
       {error && <p className="mt-2 text-red-600 text-sm">{error}</p>}
     </form>
