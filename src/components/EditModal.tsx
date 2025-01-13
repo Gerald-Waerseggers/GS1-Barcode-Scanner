@@ -58,7 +58,7 @@ const EditModal: React.FC<EditModalProps> = ({
                   value={editedScan?.gtin || ""}
                   onChange={(e) =>
                     setEditedScan((prev) =>
-                      prev ? { ...prev, gtin: e.target.value } : prev
+                      prev ? { ...prev, gtin: e.target.value } : prev,
                     )
                   }
                   className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
@@ -75,7 +75,7 @@ const EditModal: React.FC<EditModalProps> = ({
                   value={editedScan?.batchLot || ""}
                   onChange={(e) =>
                     setEditedScan((prev) =>
-                      prev ? { ...prev, batchLot: e.target.value } : prev
+                      prev ? { ...prev, batchLot: e.target.value } : prev,
                     )
                   }
                   className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
@@ -95,7 +95,7 @@ const EditModal: React.FC<EditModalProps> = ({
                     setEditedScan((prev) =>
                       prev
                         ? { ...prev, quantity: parseInt(e.target.value) || 0 }
-                        : prev
+                        : prev,
                     )
                   }
                   className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
@@ -112,7 +112,7 @@ const EditModal: React.FC<EditModalProps> = ({
                   value={editedScan?.expirationDate || ""}
                   onChange={(e) =>
                     setEditedScan((prev) =>
-                      prev ? { ...prev, expirationDate: e.target.value } : prev
+                      prev ? { ...prev, expirationDate: e.target.value } : prev,
                     )
                   }
                   className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"

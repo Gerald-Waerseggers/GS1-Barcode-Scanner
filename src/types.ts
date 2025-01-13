@@ -1,9 +1,9 @@
 export interface ScanSetup {
-    location: string;
-    supplier: string;
-  }
-  
-  export interface ScanRecord {
+  location: string;
+  supplier: string;
+}
+
+export interface ScanRecord {
   timestamp: string;
   gtin?: string;
   batchLot?: string;
@@ -11,4 +11,4 @@ export interface ScanSetup {
   expirationDate?: string;
   location: string;
   supplier: string;
-  }
+}

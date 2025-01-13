@@ -28,13 +28,6 @@ const AddModal: React.FC<AddModalProps> = ({
 
   const [newScan, setNewScan] = useState<ScanRecord>(defaultScan);
 
-  // Reset form when modal opens
-  React.useEffect(() => {
-    if (isOpen) {
-      setNewScan(defaultScan);
-    }
-  }, [isOpen, setupInfo]);
-
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     onSave(newScan);

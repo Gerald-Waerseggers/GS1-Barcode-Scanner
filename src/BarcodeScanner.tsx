@@ -75,8 +75,8 @@ export default function BarcodeScanner() {
   const handleSaveEdit = (updatedScan: ScanRecord) => {
     setScans((prev) =>
       prev.map((scan) =>
-        scan.timestamp === updatedScan.timestamp ? updatedScan : scan
-      )
+        scan.timestamp === updatedScan.timestamp ? updatedScan : scan,
+      ),
     );
     setIsEditModalOpen(false);
     setEditingScan(null);
@@ -94,7 +94,7 @@ export default function BarcodeScanner() {
           scan.gtin || "",
           scan.batchLot || "",
           scan.expirationDate || "",
-        ].join(",")
+        ].join(","),
       ),
     ].join("\n");
 
