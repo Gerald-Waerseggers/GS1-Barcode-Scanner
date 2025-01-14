@@ -16,23 +16,31 @@ const AddModal: React.FC<AddModalProps> = ({
   setupInfo,
   onSave,
 }) => {
-  const defaultScan: ScanRecord = {
-    timestamp: new Date().toISOString(),
+  const [formData, setFormData] = useState<Partial<ScanRecord>>({
     gtin: "",
     batchLot: "",
-    ref: "",
-    expirationDate: "",
     quantity: undefined,
-    storageSite: setupInfo.storageSite,
-    supplier: setupInfo.supplier,
-  };
+    expirationDate: "",
+    ref: "",
+  });
 
-  const [newScan, setNewScan] = useState<ScanRecord>(defaultScan);
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const newScan: ScanRecord = {
+      timestamp: new Date().toISOString(),
+      ...setupInfo,
+      ...formData,
+    };
     onSave(newScan);
-    onClose();
+
+    // Reset form data after submission
+    setFormData({
+      gtin: "",
+      batchLot: "",
+      quantity: undefined,
+      expirationDate: "",
+      ref: "",
+    });
   };
 
   return (
@@ -63,9 +71,9 @@ const AddModal: React.FC<AddModalProps> = ({
                 <input
                   placeholder="GTIN"
                   type="text"
-                  value={newScan.gtin || ""}
+                  value={formData.gtin || ""}
                   onChange={(e) =>
-                    setNewScan((prev) => ({ ...prev, gtin: e.target.value }))
+                    setFormData((prev) => ({ ...prev, gtin: e.target.value }))
                   }
                   className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
                 />
@@ -77,9 +85,9 @@ const AddModal: React.FC<AddModalProps> = ({
                 <input
                   placeholder="REF"
                   type="text"
-                  value={newScan.ref || ""}
+                  value={formData.ref || ""}
                   onChange={(e) =>
-                    setNewScan((prev) => ({ ...prev, ref: e.target.value }))
+                    setFormData((prev) => ({ ...prev, ref: e.target.value }))
                   }
                   className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
                 />
@@ -92,9 +100,9 @@ const AddModal: React.FC<AddModalProps> = ({
                 <input
                   placeholder="Batch/Lot"
                   type="text"
-                  value={newScan.batchLot || ""}
+                  value={formData.batchLot || ""}
                   onChange={(e) =>
-                    setNewScan((prev) => ({
+                    setFormData((prev) => ({
                       ...prev,
                       batchLot: e.target.value,
                     }))
@@ -111,9 +119,9 @@ const AddModal: React.FC<AddModalProps> = ({
                   placeholder="Quantity"
                   type="number"
                   min="0"
-                  value={newScan.quantity || ""}
+                  value={formData.quantity || ""}
                   onChange={(e) =>
-                    setNewScan((prev) => ({
+                    setFormData((prev) => ({
                       ...prev,
                       quantity: parseInt(e.target.value) || undefined,
                     }))
@@ -129,9 +137,9 @@ const AddModal: React.FC<AddModalProps> = ({
                 <input
                   placeholder="Expiration Date"
                   type="date"
-                  value={newScan.expirationDate || ""}
+                  value={formData.expirationDate || ""}
                   onChange={(e) =>
-                    setNewScan((prev) => ({
+                    setFormData((prev) => ({
                       ...prev,
                       expirationDate: e.target.value,
                     }))
