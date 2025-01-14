@@ -83,7 +83,6 @@ const ScansGrid: React.FC<ScansGridProps> = ({ scans, onEdit, onDelete }) => {
       field: "quantity",
       headerName: "Quantity",
       type: "numericColumn",
-      editable: (params: { data: ScanRecord }) => !params.data.quantity,
       cellRenderer: QuantityCellRenderer,
     },
     { field: "expirationDate", headerName: "Expiration Date" },
