@@ -33,9 +33,7 @@ export function exportScansToCSV(scans: ScanRecord[], setupInfo: ScanSetup) {
   const url = window.URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = `gs1_barcode_scans_${setupInfo.storageSite}_${
-    setupInfo.supplier
-  }_${today}.csv`;
+  a.download = `gs1_barcode_scans_${setupInfo.storageSite}_${today}.csv`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);

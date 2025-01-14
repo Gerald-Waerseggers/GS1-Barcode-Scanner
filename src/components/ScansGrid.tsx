@@ -139,7 +139,6 @@ const ScansGrid: React.FC<ScansGridProps> = ({ scans, onEdit, onDelete }) => {
         new Date(params.value).toLocaleTimeString(),
     },
     { field: "storageSite", headerName: "Storage Site" },
-    { field: "supplier", headerName: "Supplier" },
     { field: "gtin", headerName: "GTIN" },
 
     {

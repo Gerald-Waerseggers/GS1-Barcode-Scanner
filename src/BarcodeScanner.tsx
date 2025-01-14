@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { parseGS1 } from "./utils/gs1Parser";
 import { Download, Trash2, ScanLine } from "lucide-react";
 import { exportScansToCSV } from "./utils/exportScans";
@@ -16,7 +16,6 @@ export default function BarcodeScanner() {
   const [isSetup, setIsSetup] = useState(false);
   const [setupInfo, setSetupInfo] = useState<ScanSetup>({
     storageSite: "",
-    supplier: "",
     movementCode: "",
     location: "",
     addRefMode: true,
@@ -29,8 +28,11 @@ export default function BarcodeScanner() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [deletingScan, setDeletingScan] = useState<ScanRecord | null>(null);
 
-  const handleSetupComplete = (setupInfo: ScanSetup) => {
-    setSetupInfo(setupInfo);
+  const handleSetupComplete = (newSetupInfo: ScanSetup) => {
+    setSetupInfo((prevSetup) => ({
+      ...prevSetup,
+      ...newSetupInfo,
+    }));
     setIsSetup(true);
   };
 
@@ -106,8 +108,26 @@ export default function BarcodeScanner() {
     setIsAddModalOpen(false);
   };
 
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (scans.length > 0) {
+        e.preventDefault();
+        e.returnValue = "";
+        return "";
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [scans.length]);
+
   if (!isSetup) {
-    return <SetupForm onSetupComplete={handleSetupComplete} />;
+    return (
+      <SetupForm
+        onSetupComplete={handleSetupComplete}
+        initialValues={setupInfo}
+      />
+    );
   }
 
   return (
@@ -131,10 +151,6 @@ export default function BarcodeScanner() {
               <div>
                 <span className="text-sm text-gray-500">Location:</span>
                 <span className="ml-2 font-medium">{setupInfo.location}</span>
-              </div>
-              <div>
-                <span className="text-sm text-gray-500">Supplier:</span>
-                <span className="ml-2 font-medium">{setupInfo.supplier}</span>
               </div>
               <div>
                 <span className="text-sm text-gray-500">Add Ref Mode:</span>

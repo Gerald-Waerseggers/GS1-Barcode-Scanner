@@ -4,20 +4,22 @@ import { Button } from "@headlessui/react";
 
 interface SetupFormProps {
   onSetupComplete: (setupInfo: ScanSetup) => void;
+  initialValues: ScanSetup;
 }
 
-const SetupForm: React.FC<SetupFormProps> = ({ onSetupComplete }) => {
-  const [storageSite, setStorageSite] = useState("");
-  const [supplier, setSupplier] = useState("");
-  const [movementCode, setMovementCode] = useState("");
-  const [location, setLocation] = useState("");
-  const [addRefMode, setAddRefMode] = useState(false);
+const SetupForm: React.FC<SetupFormProps> = ({
+  onSetupComplete,
+  initialValues,
+}) => {
+  const [storageSite, setStorageSite] = useState(initialValues.storageSite);
+  const [movementCode, setMovementCode] = useState(initialValues.movementCode);
+  const [location, setLocation] = useState(initialValues.location);
+  const [addRefMode, setAddRefMode] = useState(initialValues.addRefMode);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSetupComplete({
       storageSite,
-      supplier,
       addRefMode,
       movementCode,
       location,
@@ -66,19 +68,6 @@ const SetupForm: React.FC<SetupFormProps> = ({ onSetupComplete }) => {
                   type="text"
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
-                  className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Supplier
-                </label>
-                <input
-                  placeholder="Supplier"
-                  type="text"
-                  value={supplier}
-                  onChange={(e) => setSupplier(e.target.value)}
                   className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md"
                   required
                 />
