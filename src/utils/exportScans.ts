@@ -14,7 +14,7 @@ export function exportScansToCSV(scans: ScanRecord[], setupInfo: ScanSetup) {
         "E", // Fixed value
         scan.storageSite, // Storage site
         today, // Allocation date (today)
-        "", // Fixed movement code
+        setupInfo.movementCode, // movement code
         "L", // Fixed value
         scan.ref, // Product (REF)
         "UN", // Fixed unit
@@ -22,7 +22,7 @@ export function exportScansToCSV(scans: ScanRecord[], setupInfo: ScanSetup) {
         "S", // Fixed value
         scan.batchLot, // Supplier lot
         scan.batchLot, // lot (same as supplier lot)
-        "", // Fixed location
+        setupInfo.location, // Fixed location
         "A", // Fixed status
         scan.expirationDate?.replace(/-/g, "") || "", // Expiration date without dashes
       ].join(";"),

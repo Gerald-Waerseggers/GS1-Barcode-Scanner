@@ -106,7 +106,6 @@ const EditModal: React.FC<EditModalProps> = ({
                 <input
                   placeholder="Quantity"
                   type="number"
-                  min="0"
                   value={editedScan?.quantity || ""}
                   onChange={(e) =>
                     setEditedScan((prev) =>

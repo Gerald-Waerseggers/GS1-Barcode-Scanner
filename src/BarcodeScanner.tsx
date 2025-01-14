@@ -17,7 +17,9 @@ export default function BarcodeScanner() {
   const [setupInfo, setSetupInfo] = useState<ScanSetup>({
     storageSite: "",
     supplier: "",
-    addRefMode: false,
+    movementCode: "",
+    location: "",
+    addRefMode: true,
   });
   const [scans, setScans] = useState<ScanRecord[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -119,6 +121,16 @@ export default function BarcodeScanner() {
                 <span className="ml-2 font-medium">
                   {setupInfo.storageSite}
                 </span>
+              </div>
+              <div>
+                <span className="text-sm text-gray-500">Movement Code:</span>
+                <span className="ml-2 font-medium">
+                  {setupInfo.movementCode}
+                </span>
+              </div>
+              <div>
+                <span className="text-sm text-gray-500">Location:</span>
+                <span className="ml-2 font-medium">{setupInfo.location}</span>
               </div>
               <div>
                 <span className="text-sm text-gray-500">Supplier:</span>

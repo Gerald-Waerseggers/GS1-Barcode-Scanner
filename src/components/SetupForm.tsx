@@ -9,6 +9,8 @@ interface SetupFormProps {
 const SetupForm: React.FC<SetupFormProps> = ({ onSetupComplete }) => {
   const [storageSite, setStorageSite] = useState("");
   const [supplier, setSupplier] = useState("");
+  const [movementCode, setMovementCode] = useState("");
+  const [location, setLocation] = useState("");
   const [addRefMode, setAddRefMode] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -17,6 +19,8 @@ const SetupForm: React.FC<SetupFormProps> = ({ onSetupComplete }) => {
       storageSite,
       supplier,
       addRefMode,
+      movementCode,
+      location,
     });
   };
 
@@ -36,6 +40,32 @@ const SetupForm: React.FC<SetupFormProps> = ({ onSetupComplete }) => {
                   type="text"
                   value={storageSite}
                   onChange={(e) => setStorageSite(e.target.value)}
+                  className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Movement Code
+                </label>
+                <input
+                  placeholder="Movement Code"
+                  type="text"
+                  value={movementCode}
+                  onChange={(e) => setMovementCode(e.target.value)}
+                  className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Location
+                </label>
+                <input
+                  placeholder="Location"
+                  type="text"
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
                   className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md"
                   required
                 />

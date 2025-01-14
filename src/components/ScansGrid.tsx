@@ -77,12 +77,11 @@ const QuantityCellRenderer: React.FC<QuantityCellRendererProps> = (props) => {
         ref={inputRef}
         aria-label="Quantity"
         type="number"
-        min="0"
         className="w-full h-full px-2 border rounded"
         onKeyDown={(e) => {
           if (e.key === "Enter") {
             const newValue =
-              parseInt((e.target as HTMLInputElement).value) || 1;
+              parseInt((e.target as HTMLInputElement).value) || 0;
             props.node.setDataValue("quantity", newValue);
             // Focus back to scan input
             document
