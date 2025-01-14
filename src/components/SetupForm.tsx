@@ -64,7 +64,7 @@ const SetupForm: React.FC<SetupFormProps> = ({ onSetupComplete }) => {
                   <span className="text-gray-700">Enable REF input mode</span>
                 </label>
               </div>
-              
+
               <Button
                 type="submit"
                 className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"

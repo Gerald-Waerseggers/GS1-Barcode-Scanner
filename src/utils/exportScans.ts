@@ -25,7 +25,7 @@ export function exportScansToCSV(scans: ScanRecord[], setupInfo: ScanSetup) {
         "", // Fixed location
         "A", // Fixed status
         scan.expirationDate?.replace(/-/g, "") || "", // Expiration date without dashes
-      ].join(";")
+      ].join(";"),
     ),
   ].join("\n");
 
