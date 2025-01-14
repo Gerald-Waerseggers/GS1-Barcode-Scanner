@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { ScanSetup } from "../types";
-import { Button, Checkbox } from "@headlessui/react";
-import { Check } from "lucide-react";
+import { Button } from "@headlessui/react";
 
 interface SetupFormProps {
   onSetupComplete: (setupInfo: ScanSetup) => void;

@@ -3,30 +3,29 @@ import { ScanRecord, ScanSetup } from "../types";
 export function exportScansToCSV(scans: ScanRecord[], setupInfo: ScanSetup) {
   if (scans.length === 0) return;
 
-  const headers = [
-    "Timestamp",
-    "Storage Site",
-    "Supplier",
-    "GTIN",
-    "Ref",
-    "Batch/Lot",
-    "Expiration Date",
-    "Quantity",
-  ];
+  const today = new Date().toISOString().split("T")[0].replace(/-/g, "");
 
   const csvContent = [
-    headers.join(","),
+    "H;E;;;;L;;;;S;;;;;END",
+    "C;;Storage site;Allocation date;Movement code;;Product;unit;quantity;;Supplier lot;lot;location;status;expiration date",
     ...scans.map((scan) =>
       [
-        scan.timestamp,
-        scan.storageSite || "",
-        scan.supplier || "",
-        scan.gtin || "",
-        scan.ref || "",
-        scan.batchLot || "",
-        scan.expirationDate || "",
-        scan.quantity || "",
-      ].join(",")
+        "", // Empty column
+        "E", // Fixed value
+        scan.storageSite, // Storage site
+        today, // Allocation date (today)
+        "", // Fixed movement code
+        "L", // Fixed value
+        scan.ref, // Product (REF)
+        "UN", // Fixed unit
+        scan.quantity || 1, // Quantity
+        "S", // Fixed value
+        scan.batchLot, // Supplier lot
+        scan.batchLot, // lot (same as supplier lot)
+        "", // Fixed location
+        "A", // Fixed status
+        scan.expirationDate?.replace(/-/g, "") || "", // Expiration date without dashes
+      ].join(";")
     ),
   ].join("\n");
 
@@ -36,7 +35,7 @@ export function exportScansToCSV(scans: ScanRecord[], setupInfo: ScanSetup) {
   a.href = url;
   a.download = `gs1_barcode_scans_${setupInfo.storageSite}_${
     setupInfo.supplier
-  }_${new Date().toISOString().split("T")[0]}.csv`;
+  }_${today}.csv`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
