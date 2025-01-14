@@ -1,6 +1,7 @@
 export interface ScanSetup {
-  location: string;
+  storageSite: string;
   supplier: string;
+  addRefMode: boolean;
 }
 
 export interface ScanRecord {
@@ -9,6 +10,7 @@ export interface ScanRecord {
   batchLot?: string;
   quantity?: number;
   expirationDate?: string;
-  location: string;
+  storageSite: string;
   supplier: string;
+  ref?: string;
 }

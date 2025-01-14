@@ -1,5 +1,5 @@
 // components/ScansGrid.tsx
-import React from "react";
+import React, { useRef, useEffect } from "react";
 import { AgGridReact } from "ag-grid-react";
 import { ScanRecord } from "../types";
 import { Pencil, Trash2 } from "lucide-react";
@@ -23,6 +23,14 @@ interface QuantityCellRendererProps {
   data: ScanRecord;
   node: {
     setDataValue: (field: string, value: number) => void;
+  };
+}
+
+// Add new interface for REF cell renderer
+interface RefCellRendererProps {
+  data: ScanRecord;
+  node: {
+    setDataValue: (field: string, value: string) => void;
   };
 }
 
@@ -50,21 +58,77 @@ const ActionCellRenderer: React.FC<ActionCellRendererProps> = (props) => {
 
 const QuantityCellRenderer: React.FC<QuantityCellRendererProps> = (props) => {
   const { data } = props;
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    // Only focus if REF is already set (or REF mode is disabled)
+    if (
+      !data.quantity &&
+      data.quantity !== 0 &&
+      (data.ref === undefined || data.ref)
+    ) {
+      inputRef.current?.focus();
+    }
+  }, [data.quantity, data.ref]);
+
   if (!data.quantity && data.quantity !== 0) {
     return (
       <input
+        ref={inputRef}
         aria-label="Quantity"
         type="number"
         min="0"
         className="w-full h-full px-2 border rounded"
-        onBlur={(e) => {
-          const newValue = parseInt(e.target.value) || 0;
-          props.node.setDataValue("quantity", newValue);
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            const newValue =
+              parseInt((e.target as HTMLInputElement).value) || 1;
+            props.node.setDataValue("quantity", newValue);
+            // Focus back to scan input
+            document
+              .querySelector<HTMLInputElement>('input[type="text"]')
+              ?.focus();
+          }
         }}
       />
     );
   }
   return data.quantity;
+};
+
+const RefCellRenderer: React.FC<RefCellRendererProps> = (props) => {
+  const { data } = props;
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!data.ref) {
+      inputRef.current?.focus();
+    }
+  }, [data.ref]);
+
+  if (!data.ref) {
+    return (
+      <input
+        placeholder="REF"
+        ref={inputRef}
+        type="text"
+        className="w-full h-full px-2 border rounded"
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            const newValue = (e.target as HTMLInputElement).value;
+            if (newValue) {
+              props.node.setDataValue("ref", newValue);
+              // Find and focus the quantity input after REF is set
+              document
+                .querySelector<HTMLInputElement>('input[type="number"]')
+                ?.focus();
+            }
+          }
+        }}
+      />
+    );
+  }
+  return data.ref;
 };
 
 const ScansGrid: React.FC<ScansGridProps> = ({ scans, onEdit, onDelete }) => {
@@ -75,9 +139,15 @@ const ScansGrid: React.FC<ScansGridProps> = ({ scans, onEdit, onDelete }) => {
       valueFormatter: (params: { value: Date }) =>
         new Date(params.value).toLocaleTimeString(),
     },
-    { field: "location", headerName: "Location" },
+    { field: "storageSite", headerName: "Storage Site" },
     { field: "supplier", headerName: "Supplier" },
     { field: "gtin", headerName: "GTIN" },
+
+    {
+      field: "ref",
+      headerName: "REF",
+      cellRenderer: RefCellRenderer,
+    },
     { field: "batchLot", headerName: "Batch/Lot" },
     {
       field: "quantity",

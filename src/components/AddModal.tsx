@@ -22,7 +22,7 @@ const AddModal: React.FC<AddModalProps> = ({
     batchLot: "",
     expirationDate: "",
     quantity: undefined,
-    location: setupInfo.location,
+    storageSite: setupInfo.storageSite,
     supplier: setupInfo.supplier,
   };
 

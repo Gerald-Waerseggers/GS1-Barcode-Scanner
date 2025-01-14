@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { parseGS1 } from "./utils/gs1Parser";
 import { Download, Trash2, ScanLine } from "lucide-react";
+import { exportScansToCSV } from "./utils/exportScans";
 
 import EditModal from "./components/EditModal";
 import SetupForm from "./components/SetupForm";
@@ -14,8 +15,9 @@ import { Button } from "@headlessui/react";
 export default function BarcodeScanner() {
   const [isSetup, setIsSetup] = useState(false);
   const [setupInfo, setSetupInfo] = useState<ScanSetup>({
-    location: "",
+    storageSite: "",
     supplier: "",
+    addRefMode: false,
   });
   const [scans, setScans] = useState<ScanRecord[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -47,6 +49,7 @@ export default function BarcodeScanner() {
         timestamp: new Date().toISOString(),
         ...parsedData,
         ...setupInfo,
+        ref: setupInfo.addRefMode ? "" : undefined,
       };
       setScans((prev) => [...prev, newScan]);
       setError(null);
@@ -75,40 +78,15 @@ export default function BarcodeScanner() {
   const handleSaveEdit = (updatedScan: ScanRecord) => {
     setScans((prev) =>
       prev.map((scan) =>
-        scan.timestamp === updatedScan.timestamp ? updatedScan : scan,
-      ),
+        scan.timestamp === updatedScan.timestamp ? updatedScan : scan
+      )
     );
     setIsEditModalOpen(false);
     setEditingScan(null);
   };
 
   const downloadCSV = () => {
-    if (scans.length === 0) return;
-
-    const headers = ["Timestamp", "GTIN", "Batch/Lot", "Expiration Date"];
-    const csvContent = [
-      headers.join(","),
-      ...scans.map((scan) =>
-        [
-          scan.timestamp,
-          scan.gtin || "",
-          scan.batchLot || "",
-          scan.expirationDate || "",
-        ].join(","),
-      ),
-    ].join("\n");
-
-    const blob = new Blob([csvContent], { type: "text/csv" });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `gs1_barcode_scans_${setupInfo.location}_${
-      setupInfo.supplier
-    }_${new Date().toISOString().split("T")[0]}.csv`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    window.URL.revokeObjectURL(url);
+    exportScansToCSV(scans, setupInfo);
   };
 
   const clearScans = () => {
@@ -137,12 +115,20 @@ export default function BarcodeScanner() {
           <div className="flex items-center justify-between mb-4 p-3 bg-gray-50 rounded-md">
             <div className="flex gap-4">
               <div>
-                <span className="text-sm text-gray-500">Location:</span>
-                <span className="ml-2 font-medium">{setupInfo.location}</span>
+                <span className="text-sm text-gray-500">Storage Site:</span>
+                <span className="ml-2 font-medium">
+                  {setupInfo.storageSite}
+                </span>
               </div>
               <div>
                 <span className="text-sm text-gray-500">Supplier:</span>
                 <span className="ml-2 font-medium">{setupInfo.supplier}</span>
+              </div>
+              <div>
+                <span className="text-sm text-gray-500">Add Ref Mode:</span>
+                <span className="ml-2 font-medium">
+                  {setupInfo.addRefMode ? "Enabled" : "Disabled"}
+                </span>
               </div>
             </div>
             <Button

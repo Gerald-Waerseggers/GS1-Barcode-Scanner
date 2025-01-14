@@ -18,8 +18,10 @@ const ScanInputForm: React.FC<
 
   const handleScan = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    onScan(input);
-    setInput("");
+    if (input.trim()) {
+      onScan(input);
+      setInput("");
+    }
   };
 
   return (
