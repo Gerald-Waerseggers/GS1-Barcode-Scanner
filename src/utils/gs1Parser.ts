@@ -12,15 +12,16 @@ interface ParsedGS1Data {
 
 export function parseGS1(barcode: string): ParsedGS1Data {
   try {
-    // Remove C1 prefix if present
-    const barcodeWithoutPrefix = barcode.replace(/^C1/, "");
-
-    // Remove parentheses from the barcode before parsing
-    const cleanBarcode = barcodeWithoutPrefix.replace(/[()]/g, "");
+    
+    if (!barcode.startsWith("]")) {
+      barcode = "]" + barcode;
+    }
 
     // Use the existing parser to get detailed parsing
-    const parsed = parseBarcode(cleanBarcode);
+    const parsed = parseBarcode(barcode);
     const result: ParsedGS1Data = {};
+    console.log(parsed);
+
     console.log(result);
 
     // Map the parsed elements to our simplified format
