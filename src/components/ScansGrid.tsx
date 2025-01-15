@@ -109,7 +109,7 @@ const RefCellRenderer: React.FC<RefCellRendererProps> = (props) => {
           props.node.setDataValue("ref", existingRef);
           // Focus quantity input after auto-filling REF
           const lastRow = document.querySelector(
-            '.ag-row-last input[type="number"]'
+            '.ag-row-last input[type="number"]',
           );
           (lastRow as HTMLElement)?.focus();
         }
@@ -139,7 +139,7 @@ const RefCellRenderer: React.FC<RefCellRendererProps> = (props) => {
               props.node.setDataValue("ref", newValue);
               // Find and focus the quantity input
               const lastRow = document.querySelector(
-                '.ag-row-last input[type="number"]'
+                '.ag-row-last input[type="number"]',
               );
               (lastRow as HTMLElement)?.focus();
             }

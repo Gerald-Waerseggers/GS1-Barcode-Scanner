@@ -1,5 +1,5 @@
 export async function loadMappingFile(
-  filename: string
+  filename: string,
 ): Promise<string | null> {
   try {
     const root = await navigator.storage.getDirectory();
@@ -19,7 +19,7 @@ export async function loadMappingFile(
 
 export async function saveMappingFile(
   filename: string,
-  content: string
+  content: string,
 ): Promise<void> {
   try {
     const root = await navigator.storage.getDirectory();

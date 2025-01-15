@@ -79,7 +79,7 @@ class GTINRefStore {
     const csvContent = [
       "GTIN,REF",
       ...Array.from(this.mapping.gtinToRef.entries()).map(
-        ([gtin, ref]) => `${gtin},${ref}`
+        ([gtin, ref]) => `${gtin},${ref}`,
       ),
     ].join("\n");
 
