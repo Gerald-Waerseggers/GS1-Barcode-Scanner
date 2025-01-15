@@ -5,6 +5,7 @@ import { ScanRecord } from "../types";
 import { Pencil, Trash2 } from "lucide-react";
 import { ColDef, themeQuartz } from "ag-grid-community";
 import { Button } from "@headlessui/react";
+import { gtinRefStore } from "../stores/gtinRefStore";
 
 interface ScansGridProps {
   scans: ScanRecord[];
@@ -99,6 +100,24 @@ const RefCellRenderer: React.FC<RefCellRendererProps> = (props) => {
   const { data } = props;
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // Try to get existing REF for this GTIN
+  useEffect(() => {
+    async function lookupRef() {
+      if (!data.ref && data.gtin) {
+        const existingRef = await gtinRefStore.getRefForGtin(data.gtin);
+        if (existingRef) {
+          props.node.setDataValue("ref", existingRef);
+          // Focus quantity input after auto-filling REF
+          const lastRow = document.querySelector(
+            '.ag-row-last input[type="number"]'
+          );
+          (lastRow as HTMLElement)?.focus();
+        }
+      }
+    }
+    lookupRef();
+  }, [data.gtin]);
+
   useEffect(() => {
     if (!data.ref) {
       inputRef.current?.focus();
@@ -115,12 +134,14 @@ const RefCellRenderer: React.FC<RefCellRendererProps> = (props) => {
         onKeyDown={(e) => {
           if (e.key === "Enter") {
             const newValue = (e.target as HTMLInputElement).value;
-            if (newValue) {
+            if (newValue && data.gtin) {
+              gtinRefStore.addMapping(data.gtin, newValue);
               props.node.setDataValue("ref", newValue);
-              // Find and focus the quantity input after REF is set
-              document
-                .querySelector<HTMLInputElement>('input[type="number"]')
-                ?.focus();
+              // Find and focus the quantity input
+              const lastRow = document.querySelector(
+                '.ag-row-last input[type="number"]'
+              );
+              (lastRow as HTMLElement)?.focus();
             }
           }
         }}

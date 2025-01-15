@@ -12,10 +12,10 @@ interface ParsedGS1Data {
 
 export function parseGS1(barcode: string): ParsedGS1Data {
   try {
-    
     if (!barcode.startsWith("]")) {
       barcode = "]" + barcode;
     }
+    barcode = barcode.replace(/§/g, "-");
 
     // Use the existing parser to get detailed parsing
     const parsed = parseBarcode(barcode);
