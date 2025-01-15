@@ -8,7 +8,6 @@ interface GTINRefMapping {
 class GTINRefStore {
   private static instance: GTINRefStore;
   private mapping: GTINRefMapping;
-  private readonly STORAGE_KEY = "gtin-ref-mapping";
   private readonly FILENAME = "gtin-ref-mapping.json";
 
   private constructor() {
@@ -39,41 +38,47 @@ class GTINRefStore {
   private async saveToOPFS() {
     const data = {
       gtinToRef: Object.fromEntries(this.mapping.gtinToRef),
+      refToGtins: Object.fromEntries(
+        Array.from(this.mapping.refToGtins.entries()).map(([ref, gtins]) => [
+          ref,
+          Array.from(gtins),
+        ]),
+      ),
     };
     const jsonData = JSON.stringify(data);
     await saveMappingFile(this.FILENAME, jsonData);
   }
 
-  /* private loadFromLocalStorage() {
-    try {
-      const stored = localStorage.getItem(this.STORAGE_KEY);
-      if (stored) {
-        const data = JSON.parse(stored);
-        Object.entries(data.gtinToRef).forEach(([gtin, ref]) => {
-          this.addMapping(gtin, ref as string, false);
-        });
+  async addMapping(gtin: string, ref: string, shouldSave = true) {
+    // Remove GTIN from its previous REF mapping if it exists
+    const oldRef = this.mapping.gtinToRef.get(gtin);
+    if (oldRef && oldRef !== ref) {
+      this.mapping.refToGtins.get(oldRef)?.delete(gtin);
+      // Clean up empty sets
+      if (this.mapping.refToGtins.get(oldRef)?.size === 0) {
+        this.mapping.refToGtins.delete(oldRef);
       }
-    } catch (error) {
-      console.warn("Failed to load GTIN-REF mapping from localStorage:", error);
+    }
+
+    // Add new mappings
+    this.mapping.gtinToRef.set(gtin, ref);
+    if (!this.mapping.refToGtins.has(ref)) {
+      this.mapping.refToGtins.set(ref, new Set());
+    }
+    this.mapping.refToGtins.get(ref)?.add(gtin);
+
+    if (shouldSave) {
+      await this.saveToOPFS();
     }
   }
 
-  private saveToLocalStorage() {
-    try {
-      const data = {
-        gtinToRef: Object.fromEntries(this.mapping.gtinToRef),
-        refToGtins: Object.fromEntries(
-          Array.from(this.mapping.refToGtins.entries()).map(([ref, gtins]) => [
-            ref,
-            Array.from(gtins),
-          ])
-        ),
-      };
-      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(data));
-    } catch (error) {
-      console.error("Failed to save GTIN-REF mapping to localStorage:", error);
-    }
-  } */
+  async getRefForGtin(gtin: string): Promise<string | undefined> {
+    return this.mapping.gtinToRef.get(gtin);
+  }
+
+  async getGtinsForRef(ref: string): Promise<string[]> {
+    return Array.from(this.mapping.refToGtins.get(ref) || []);
+  }
 
   exportToCSV() {
     const csvContent = [
@@ -94,42 +99,31 @@ class GTINRefStore {
     window.URL.revokeObjectURL(url);
   }
 
-  importFromCSV(file: File) {
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const text = event.target?.result as string;
-      const lines = text.split("\n");
+  async importFromCSV(file: File): Promise<void> {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = async (event) => {
+        const text = event.target?.result as string;
+        const lines = text.split("\n");
 
-      // Skip header
-      for (let i = 1; i < lines.length; i++) {
-        const [gtin, ref] = lines[i].split(",");
-        if (gtin && ref) {
-          this.addMapping(gtin.trim(), ref.trim(), true);
+        // Skip header
+        for (let i = 1; i < lines.length; i++) {
+          const [gtin, ref] = lines[i].split(",");
+          if (gtin && ref) {
+            await this.addMapping(gtin.trim(), ref.trim(), true);
+          }
         }
-      }
-    };
-    reader.readAsText(file);
+        resolve();
+      };
+      reader.readAsText(file);
+    });
   }
 
-  async addMapping(gtin: string, ref: string, shouldSave = true) {
-    this.mapping.gtinToRef.set(gtin, ref);
-
-    if (!this.mapping.refToGtins.has(ref)) {
-      this.mapping.refToGtins.set(ref, new Set());
-    }
-    this.mapping.refToGtins.get(ref)?.add(gtin);
-
-    if (shouldSave) {
-      await this.saveToOPFS();
-    }
-  }
-
-  async getRefForGtin(gtin: string): Promise<string | undefined> {
-    return this.mapping.gtinToRef.get(gtin);
-  }
-
-  async getGtinsForRef(ref: string): Promise<string[]> {
-    return Array.from(this.mapping.refToGtins.get(ref) || []);
+  async getAllMappings(): Promise<{ gtin: string; ref: string }[]> {
+    return Array.from(this.mapping.gtinToRef.entries()).map(([gtin, ref]) => ({
+      gtin,
+      ref,
+    }));
   }
 }
 

@@ -8,8 +8,13 @@ export async function loadMappingFile(
       const file = await fileHandle.getFile();
       return await file.text();
     } catch (e) {
-      // File doesn't exist yet, which is fine for first run
-      return null;
+      // File doesn't exist, create it with empty mapping
+      const emptyMapping = {
+        gtinToRef: {},
+        refToGtins: {},
+      };
+      await saveMappingFile(filename, JSON.stringify(emptyMapping));
+      return JSON.stringify(emptyMapping);
     }
   } catch (error) {
     console.warn("Failed to access OPFS:", error);

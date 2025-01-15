@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { parseGS1 } from "./utils/gs1Parser";
-import { Download, Trash2, ScanLine } from "lucide-react";
+import { Download, Trash2, ScanLine, Database } from "lucide-react";
 import { exportScansToCSV } from "./utils/exportScans";
 
 import EditModal from "./components/EditModal";
@@ -11,6 +11,7 @@ import { ScanSetup, ScanRecord } from "./types";
 import AddModal from "./components/AddModal";
 import DeleteModal from "./components/DeleteModal";
 import { Button } from "@headlessui/react";
+import MappingModal from "./components/MappingModal";
 
 export default function BarcodeScanner() {
   const [isSetup, setIsSetup] = useState(false);
@@ -27,6 +28,7 @@ export default function BarcodeScanner() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [deletingScan, setDeletingScan] = useState<ScanRecord | null>(null);
+  const [isMappingModalOpen, setIsMappingModalOpen] = useState(false);
 
   const handleSetupComplete = (newSetupInfo: ScanSetup) => {
     setSetupInfo((prevSetup) => ({
@@ -159,12 +161,21 @@ export default function BarcodeScanner() {
                 </span>
               </div>
             </div>
-            <Button
-              onClick={() => setIsSetup(false)}
-              className="px-3 py-1 text-sm bg-gray-200 hover:bg-gray-300 rounded-md"
-            >
-              Change Setup
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                onClick={() => setIsMappingModalOpen(true)}
+                className="flex items-center gap-2 px-3 py-1 text-sm bg-gray-200 hover:bg-gray-300 rounded-md"
+              >
+                <Database className="w-4 h-4" />
+                Manage Mappings
+              </Button>
+              <Button
+                onClick={() => setIsSetup(false)}
+                className="px-3 py-1 text-sm bg-gray-200 hover:bg-gray-300 rounded-md"
+              >
+                Change Setup
+              </Button>
+            </div>
           </div>
 
           <div className="flex items-center justify-between mb-6">
@@ -231,6 +242,10 @@ export default function BarcodeScanner() {
         }}
         scan={deletingScan}
         onConfirm={handleConfirmDelete}
+      />
+      <MappingModal
+        isOpen={isMappingModalOpen}
+        onClose={() => setIsMappingModalOpen(false)}
       />
     </div>
   );
