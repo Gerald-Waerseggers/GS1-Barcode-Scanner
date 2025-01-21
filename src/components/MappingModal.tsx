@@ -1,9 +1,11 @@
 import { Button, Dialog, DialogPanel, DialogTitle } from "@headlessui/react";
 import { AgGridReact } from "ag-grid-react";
-import { ColDef, themeQuartz } from "ag-grid-community";
+import { ColDef, themeQuartz, CellValueChangedEvent } from "ag-grid-community";
 import { Download, Plus, Trash2, Upload } from "lucide-react";
 import { gtinRefStore } from "../stores/gtinRefStore";
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
+import { ScanRecord } from "../types";
 
 interface MappingModalProps {
   isOpen: boolean;
@@ -13,6 +15,14 @@ interface MappingModalProps {
 interface MappingRow {
   gtin: string;
   ref: string;
+}
+
+// Add new interface for REF cell renderer
+interface CellRendererProps {
+  data: ScanRecord;
+  node: {
+    setDataValue: (field: string, value: string) => void;
+  };
 }
 
 export default function MappingModal({ isOpen, onClose }: MappingModalProps) {
@@ -37,7 +47,7 @@ export default function MappingModal({ isOpen, onClose }: MappingModalProps) {
     {
       headerName: "Actions",
       field: "actions",
-      cellRenderer: (params) => (
+      cellRenderer: (params: CellRendererProps) => (
         <Button
           onClick={() => onDeleteMapping(params.data.gtin)}
           className="p-1 text-red-600 hover:text-red-800"
@@ -61,10 +71,10 @@ export default function MappingModal({ isOpen, onClose }: MappingModalProps) {
     }
   }, [isOpen]);
 
-  const onCellValueChanged = (params) => {
+  const onCellValueChanged = (params: CellValueChangedEvent) => {
     const updatedMappings = [...mappings];
     const rowIndex = params.node.rowIndex;
-    const field = params.colDef.field;
+    const field = params.colDef.field as keyof MappingRow;
     updatedMappings[rowIndex][field] = params.newValue;
     setMappings(updatedMappings);
   };
@@ -73,7 +83,7 @@ export default function MappingModal({ isOpen, onClose }: MappingModalProps) {
     setMappings([...mappings, { gtin: "", ref: "" }]);
   };
 
-  const onDeleteMapping = (gtin) => {
+  const onDeleteMapping = (gtin: string) => {
     const updatedMappings = mappings.filter((mapping) => mapping.gtin !== gtin);
     setMappings(updatedMappings);
   };
@@ -83,7 +93,7 @@ export default function MappingModal({ isOpen, onClose }: MappingModalProps) {
       await gtinRefStore.setMappings(mappings);
       onClose();
     } catch (error) {
-      console.error("Error saving mappings:", error);
+      toast.error("Error saving mappings: " + error);
     }
   };
 
@@ -112,7 +122,7 @@ export default function MappingModal({ isOpen, onClose }: MappingModalProps) {
                     // Clear the input value to allow importing the same file again
                     e.target.value = "";
                   } catch (error) {
-                    console.error("Error importing mappings:", error);
+                    toast.error("Error importing mappings: " + error);
                   }
                 }
               }}

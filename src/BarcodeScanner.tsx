@@ -13,6 +13,7 @@ import DeleteModal from "./components/DeleteModal";
 import { Button } from "@headlessui/react";
 import MappingModal from "./components/MappingModal";
 import { exportStockCountCSV } from "./utils/stockCountExport";
+import toast from "react-hot-toast";
 
 export default function BarcodeScanner() {
   const [isSetup, setIsSetup] = useState(false);
@@ -62,7 +63,7 @@ export default function BarcodeScanner() {
       setScans((prev) => [...prev, newScan]);
       setError(null);
     } catch (err) {
-      console.error("Scan error:", err);
+      toast.error((err as Error).message);
       setError(err instanceof Error ? err.message : "Invalid barcode format");
     }
   };
