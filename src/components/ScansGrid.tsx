@@ -25,6 +25,7 @@ interface QuantityCellRendererProps {
   node: {
     setDataValue: (field: string, value: number) => void;
   };
+  
 }
 
 // Add new interface for REF cell renderer

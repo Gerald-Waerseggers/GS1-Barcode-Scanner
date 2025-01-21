@@ -12,14 +12,17 @@ import AddModal from "./components/AddModal";
 import DeleteModal from "./components/DeleteModal";
 import { Button } from "@headlessui/react";
 import MappingModal from "./components/MappingModal";
+import { exportStockCountCSV } from "./utils/stockCountExport";
 
 export default function BarcodeScanner() {
   const [isSetup, setIsSetup] = useState(false);
   const [setupInfo, setSetupInfo] = useState<ScanSetup>({
+    stockCount: false,
     storageSite: "",
     movementCode: "",
     location: "",
     addRefMode: true,
+
   });
   const [scans, setScans] = useState<ScanRecord[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -92,7 +95,12 @@ export default function BarcodeScanner() {
   };
 
   const downloadCSV = () => {
-    exportScansToCSV(scans, setupInfo);
+    if (setupInfo.stockCount) {
+      exportStockCountCSV(scans, setupInfo);
+    } else
+    {
+      exportScansToCSV(scans, setupInfo);
+    }
   };
 
   const clearScans = () => {

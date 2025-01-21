@@ -14,11 +14,13 @@ const SetupForm: React.FC<SetupFormProps> = ({
   const [storageSite, setStorageSite] = useState(initialValues.storageSite);
   const [movementCode, setMovementCode] = useState(initialValues.movementCode);
   const [location, setLocation] = useState(initialValues.location);
+  const [stockCount, setStockCount] = useState(initialValues.stockCount);
   const [addRefMode, setAddRefMode] = useState(initialValues.addRefMode);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSetupComplete({
+      stockCount,
       storageSite,
       addRefMode,
       movementCode,
@@ -73,12 +75,23 @@ const SetupForm: React.FC<SetupFormProps> = ({
                 />
               </div>
               <div className="mb-4">
-                <label className="flex items-center space-x-2 ml-1">
+                <label className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    checked={stockCount}
+                    onChange={(e) => setStockCount(e.target.checked)}
+                    className="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  />
+                  <span className="text-gray-700">Stock Count?</span>
+                </label>
+              </div>
+              <div className="mb-4">
+                <label className="flex items-center space-x-2">
                   <input
                     type="checkbox"
                     checked={addRefMode}
                     onChange={(e) => setAddRefMode(e.target.checked)}
-                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    className=" h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                   />
                   <span className="text-gray-700">Enable REF input mode</span>
                 </label>
