@@ -72,6 +72,21 @@ class GTINRefStore {
     }
   }
 
+  async setMappings(newMappings: { gtin: string; ref: string }[]) {
+    // Clear existing mappings
+    this.mapping.gtinToRef.clear();
+    this.mapping.refToGtins.clear();
+
+    // Add new mappings
+    for (const { gtin, ref } of newMappings) {
+      // Use addMapping with shouldSave = false to avoid saving on each add
+      await this.addMapping(gtin, ref, false);
+    }
+
+    // Save all at once after updating mappings
+    await this.saveToOPFS();
+  }
+
   async getRefForGtin(gtin: string): Promise<string | undefined> {
     return this.mapping.gtinToRef.get(gtin);
   }

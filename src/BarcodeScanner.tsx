@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { parseGS1 } from "./utils/gs1Parser";
-import { Download, Trash2, ScanLine, Database } from "lucide-react";
+import { Trash2, ScanLine, Database, Upload } from "lucide-react";
 import { exportScansToCSV } from "./utils/exportScans";
 
 import EditModal from "./components/EditModal";
@@ -22,7 +22,6 @@ export default function BarcodeScanner() {
     movementCode: "",
     location: "",
     addRefMode: true,
-
   });
   const [scans, setScans] = useState<ScanRecord[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -97,8 +96,7 @@ export default function BarcodeScanner() {
   const downloadCSV = () => {
     if (setupInfo.stockCount) {
       exportStockCountCSV(scans, setupInfo);
-    } else
-    {
+    } else {
       exportScansToCSV(scans, setupInfo);
     }
   };
@@ -200,7 +198,7 @@ export default function BarcodeScanner() {
                 disabled={scans.length === 0}
                 className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <Download className="w-4 h-4" />
+                <Upload className="w-4 h-4" />
                 Export CSV
               </Button>
               <Button

@@ -70,12 +70,7 @@ export function exportStockCountCSV(scans: ScanRecord[], setupInfo: ScanSetup) {
     ].join(",");
   });
 
-  const csvContent = [
-    ...headerLines,
-    line4,
-    line5,
-    ...scanLines,
-  ].join("\n");
+  const csvContent = [...headerLines, line4, line5, ...scanLines].join("\n");
 
   // Generate filename
   const today = new Date().toISOString().split("T")[0].replace(/-/g, "");
