@@ -190,7 +190,7 @@ export default function BarcodeScanner() {
               <ScanLine className="w-6 h-6 text-blue-600" />
 
               <h1 className="text-2xl font-bold text-gray-800">
-                GS1 Barcode Scanner
+                Barcode Scanner: {setupInfo.stockCount ? "Stock Count" : "Stock Receipt"}
               </h1>
             </div>
             <div className="flex gap-2">
