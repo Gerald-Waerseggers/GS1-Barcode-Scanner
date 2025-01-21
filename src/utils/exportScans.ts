@@ -3,37 +3,88 @@ import { ScanRecord, ScanSetup } from "../types";
 export function exportScansToCSV(scans: ScanRecord[], setupInfo: ScanSetup) {
   if (scans.length === 0) return;
 
-  const today = new Date().toISOString().split("T")[0].replace(/-/g, "");
+  // Prepare the header lines
+  const headerLines = [
+    "E,Stock count session,Description,Stock count type,Processing selection,Products without stock,Count sort,Global,Storage site,,,,,",
+    "L,Stock count session,Count worksheet,Status,Storage site,,,,,,,,,",
+    "S,Stock count session,Count worksheet,Product rank,Storage site,Counted stock PAC,Counted STK stock,Zero stock,Product,Lot,Location,Stock status,Unit,PAC-STK conv.",
+  ];
+
+  // Line 4: E line with data
+  const line4 = [
+    "E",
+    "", // Stock count session
+    setupInfo.movementCode || "Stock Count Session import", // Description
+    "1", // Stock count type
+    setupInfo.storageSite, // Processing selection
+    "",
+    "",
+    "",
+    setupInfo.storageSite, // Storage site
+    "",
+    "",
+    "",
+    "",
+  ].join(",");
+
+  // Line 5: L line with data
+  const line5 = [
+    "L",
+    "",
+    "",
+    "5", // Status
+    setupInfo.storageSite,
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+  ].join(",");
+
+  // Then, for each scan, build an 'S' line
+  const scanLines = scans.map((scan) => {
+    const zeroStock = scan.quantity === 0 ? "2" : "1";
+    const countedQuantity = scan.quantity || 0;
+    const unit = "UN";
+    const conversionFactor = "1";
+    const stockStatus = "A";
+
+    return [
+      "S",
+      "",
+      "",
+      "",
+      setupInfo.storageSite,
+      countedQuantity, // Counted stock PAC
+      countedQuantity, // Counted STK stock
+      zeroStock, // Zero stock
+      scan.ref, // Product
+      scan.batchLot, // Lot
+      scan.location || setupInfo.location || "", // Location
+      stockStatus, // Stock status
+      unit, // Unit
+      conversionFactor,
+    ].join(",");
+  });
 
   const csvContent = [
-    "H;E;;;;L;;;;S;;;;;END",
-    "C;;Storage site;Allocation date;Movement code;;Product;unit;quantity;;Supplier lot;lot;location;status;expiration date",
-    ...scans.map((scan) =>
-      [
-        "", // Empty column
-        "E", // Fixed value
-        scan.storageSite, // Storage site
-        today, // Allocation date (today)
-        setupInfo.movementCode, // movement code
-        "L", // Fixed value
-        scan.ref, // Product (REF)
-        "UN", // Fixed unit
-        scan.quantity || 1, // Quantity
-        "S", // Fixed value
-        scan.batchLot, // Supplier lot
-        scan.batchLot, // lot (same as supplier lot)
-        setupInfo.location, // Fixed location
-        "A", // Fixed status
-        scan.expirationDate?.replace(/-/g, "") || "", // Expiration date without dashes
-      ].join(";"),
-    ),
+    ...headerLines,
+    line4,
+    line5,
+    ...scanLines,
   ].join("\n");
 
-  const blob = new Blob([csvContent], { type: "text/csv" });
+  // Generate filename
+  const today = new Date().toISOString().split("T")[0].replace(/-/g, "");
+
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
   const url = window.URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = `gs1_barcode_scans_${setupInfo.storageSite}_${today}.csv`;
+  a.download = `stock_count_${setupInfo.storageSite}_${today}.csv`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
