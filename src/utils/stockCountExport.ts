@@ -5,9 +5,9 @@ export function exportStockCountCSV(scans: ScanRecord[], setupInfo: ScanSetup) {
 
   // Prepare the header lines
   const headerLines = [
-    "E,Stock count session,Description,Stock count type,Processing selection,Products without stock,Count sort,Global,Storage site,,,,,",
-    "L,Stock count session,Count worksheet,Status,Storage site,,,,,,,,,",
-    "S,Stock count session,Count worksheet,Product rank,Storage site,Counted stock PAC,Counted STK stock,Zero stock,Product,Lot,Location,Stock status,Unit,PAC-STK conv.",
+    "E;Stock count session;Description;Stock count type;Processing selection;Products without stock;Count sort;Global;Storage site;;;;;",
+    "L;Stock count session;Count worksheet;Status;Storage site;;;;;;;;;;",
+    "S;Stock count session;Count worksheet;Product rank;Storage site;Counted stock PAC;Counted STK stock;Zero stock;Product;Lot;Location;Stock status;Unit;PAC-STK conv.",
   ];
 
   // Line 4: E line with data
@@ -25,7 +25,7 @@ export function exportStockCountCSV(scans: ScanRecord[], setupInfo: ScanSetup) {
     "",
     "",
     "",
-  ].join(",");
+  ].join(";");
 
   // Line 5: L line with data
   const line5 = [
@@ -42,7 +42,7 @@ export function exportStockCountCSV(scans: ScanRecord[], setupInfo: ScanSetup) {
     "",
     "",
     "",
-  ].join(",");
+  ].join(";");
 
   // Then, for each scan, build an 'S' line
   const scanLines = scans.map((scan) => {
@@ -67,7 +67,7 @@ export function exportStockCountCSV(scans: ScanRecord[], setupInfo: ScanSetup) {
       stockStatus, // Stock status
       unit, // Unit
       conversionFactor,
-    ].join(",");
+    ].join(";");
   });
 
   const csvContent = [...headerLines, line4, line5, ...scanLines].join("\n");
