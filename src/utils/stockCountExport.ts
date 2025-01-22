@@ -3,7 +3,7 @@ import { ScanRecord, ScanSetup } from "../types";
 export function exportStockCountCSV(scans: ScanRecord[], setupInfo: ScanSetup) {
   if (scans.length === 0) return;
 
- /*  // Prepare the header lines
+  /*  // Prepare the header lines
   const headerLines = [
     "E;Stock count session;Description;Stock count type;Processing selection;Products without stock;Count sort;Global;Storage site;;;;;",
     "L;Stock count session;Count worksheet;Status;Storage site;;;;;;;;;;",
