@@ -3,12 +3,12 @@ import { ScanRecord, ScanSetup } from "../types";
 export function exportStockCountCSV(scans: ScanRecord[], setupInfo: ScanSetup) {
   if (scans.length === 0) return;
 
-  // Prepare the header lines
+ /*  // Prepare the header lines
   const headerLines = [
     "E;Stock count session;Description;Stock count type;Processing selection;Products without stock;Count sort;Global;Storage site;;;;;",
     "L;Stock count session;Count worksheet;Status;Storage site;;;;;;;;;;",
     "S;Stock count session;Count worksheet;Product rank;Storage site;Counted stock PAC;Counted STK stock;Zero stock;Product;Lot;Location;Stock status;Unit;PAC-STK conv.",
-  ];
+  ]; */
 
   // Line 4: E line with data
   const line4 = [
@@ -70,7 +70,7 @@ export function exportStockCountCSV(scans: ScanRecord[], setupInfo: ScanSetup) {
     ].join(";");
   });
 
-  const csvContent = [...headerLines, line4, line5, ...scanLines].join("\n");
+  const csvContent = [line4, line5, ...scanLines].join("\n");
 
   // Generate filename
   const today = new Date().toISOString().split("T")[0].replace(/-/g, "");
