@@ -106,10 +106,11 @@ const RefCellRenderer: React.FC<RefCellRendererProps> = (props) => {
       if (!data.ref && data.gtin) {
         const existingRef = await gtinRefStore.getRefForGtin(data.gtin);
         if (existingRef) {
-          props.node.setDataValue("ref", existingRef);
+          // Replace dots with dashes when setting REF
+          props.node.setDataValue("ref", existingRef.replace(/\./g, "-"));
           // Focus quantity input after auto-filling REF
           const lastRow = document.querySelector(
-            '.ag-row-last input[type="number"]',
+            '.ag-row-last input[type="number"]'
           );
           (lastRow as HTMLElement)?.focus();
         }
@@ -135,11 +136,13 @@ const RefCellRenderer: React.FC<RefCellRendererProps> = (props) => {
           if (e.key === "Enter") {
             const newValue = (e.target as HTMLInputElement).value;
             if (newValue && data.gtin) {
-              gtinRefStore.addMapping(data.gtin, newValue);
-              props.node.setDataValue("ref", newValue);
+              // Replace dots with dashes before saving
+              const formattedRef = newValue.replace(/\./g, "-");
+              gtinRefStore.addMapping(data.gtin, formattedRef);
+              props.node.setDataValue("ref", formattedRef);
               // Find and focus the quantity input
               const lastRow = document.querySelector(
-                '.ag-row-last input[type="number"]',
+                '.ag-row-last input[type="number"]'
               );
               (lastRow as HTMLElement)?.focus();
             }

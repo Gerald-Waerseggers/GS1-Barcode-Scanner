@@ -8,6 +8,8 @@ import {
   Label,
   Select,
 } from "@headlessui/react";
+import { loadERPStockCount, deleteERPStockCount } from "../utils/opfsUtils";
+import { toast } from "react-hot-toast";
 
 interface SetupFormProps {
   onSetupComplete: (setupInfo: ScanSetup) => void;
@@ -24,7 +26,7 @@ const SetupForm: React.FC<SetupFormProps> = ({
   const [stockCount, setStockCount] = useState(initialValues.stockCount);
   const [addRefMode, setAddRefMode] = useState(initialValues.addRefMode);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     onSetupComplete({
       stockCount,
@@ -33,6 +35,24 @@ const SetupForm: React.FC<SetupFormProps> = ({
       movementCode,
       location,
     });
+  };
+
+  const handleERPFileUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Delete existing ERP stock count before loading new one
+      await deleteERPStockCount();
+      const result = await loadERPStockCount(file);
+      if (result.length > 0) {
+        toast.success("ERP stock count loaded successfully");
+      } else {
+        toast.error("Failed to load ERP stock count");
+        // Clear the input value to allow uploading the same file again
+        e.target.value = "";
+      }
+    }
   };
 
   return (
@@ -106,6 +126,26 @@ const SetupForm: React.FC<SetupFormProps> = ({
                   <span className="text-gray-700">Enable REF input mode</span>
                 </Label>
               </Field>
+
+              {stockCount && (
+                <Field>
+                  <Label className="block text-sm font-medium text-gray-700">
+                    ERP (Sage X3) Stock Count File
+                  </Label>
+                  <a className="text-sm text-blue-600" href="http://213.207.99.88:8124/syracuse-main/html/main.html?url=/trans/x3/erp/MMLIVE/$sessions?f%3DGEXPOBJ%252F2%252F%252FM%252F%26profile%3D~(loc~'en-US~role~'57cffaa1-ff5b-4b2e-bdb0-b9870562975c~ep~'1cd0ef0b-195b-4051-b14e-7bf20f0e31bd~appConn~(KEY1~'x3))">
+                    Sage X3 Link to Extract file
+                  </a>
+                  <Input
+                    type="file"
+                    onChange={handleERPFileUpload}
+                    className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md"
+                    required
+                  />
+                  <span className="text-xs text-gray-500">
+                    Upload ERP stock count file (S;REF;Lot;Location;Quantity)
+                  </span>
+                </Field>
+              )}
 
               <Button
                 type="submit"

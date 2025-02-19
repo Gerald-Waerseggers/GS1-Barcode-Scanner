@@ -1,6 +1,10 @@
 import { ScanRecord, ScanSetup } from "../types";
+import { getERPStockCount } from "./opfsUtils";
 
-export function exportStockCountCSV(scans: ScanRecord[], setupInfo: ScanSetup) {
+export async function exportStockCountCSV(
+  scans: ScanRecord[],
+  setupInfo: ScanSetup
+) {
   if (scans.length === 0) return;
 
   /*  // Prepare the header lines
@@ -10,47 +14,41 @@ export function exportStockCountCSV(scans: ScanRecord[], setupInfo: ScanSetup) {
     "S;Stock count session;Count worksheet;Product rank;Storage site;Counted stock PAC;Counted STK stock;Zero stock;Product;Lot;Location;Stock status;Unit;PAC-STK conv.",
   ]; */
 
-  // Line 4: E line with data
-  const line4 = [
-    "E",
-    "", // Stock count session
-    setupInfo.movementCode || "Stock Count Session import", // Description
-    "1", // Stock count type
-    setupInfo.storageSite, // Processing selection
-    "",
-    "",
-    "",
-    setupInfo.storageSite, // Storage site
-    "",
-    "",
-    "",
-    "",
-  ].join(";");
+  // Load ERP stock count data
+  const erpStock = await getERPStockCount();
 
-  // Line 5: L line with data
-  const line5 = [
-    "L",
-    "",
-    "",
-    "5", // Status
-    setupInfo.storageSite,
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-  ].join(";");
+  // Create a map for quick lookup
+  const erpStockMap = new Map(
+    erpStock.map((item) => [
+      `${item.ref}-${item.lotNumber}-${item.location}`,
+      item,
+    ])
+  );
 
-  // Then, for each scan, build an 'S' line
+  // Get unique REFs that were scanned
+  const scannedRefs = new Set(scans.map((scan) => scan.ref));
+
+  // Process scans and compare with ERP data
   const scanLines = scans.map((scan) => {
-    const zeroStock = scan.quantity === 0 ? "2" : "1";
+    const key = `${scan.ref}-${scan.batchLot}-${scan.location || setupInfo.location}`;
+    const erpItem = erpStockMap.get(key);
+
     const countedQuantity = scan.quantity || 0;
-    const unit = "UN";
-    const conversionFactor = "1";
-    const stockStatus = "A";
+    const zeroStock = countedQuantity === 0 ? "2" : "1";
+
+    // Log the difference if item exists in ERP
+    if (erpItem) {
+      const difference = countedQuantity - erpItem.quantity;
+      if (difference !== 0) {
+        console.log(`Quantity difference for ${key}:`, {
+          scanned: countedQuantity,
+          erp: erpItem.quantity,
+          difference,
+        });
+      }
+    } else {
+      console.log(`New item not in ERP: ${key}`);
+    }
 
     return [
       "S",
@@ -58,19 +56,57 @@ export function exportStockCountCSV(scans: ScanRecord[], setupInfo: ScanSetup) {
       "",
       "",
       setupInfo.storageSite,
-      countedQuantity, // Counted stock PAC
-      countedQuantity, // Counted STK stock
-      zeroStock, // Zero stock
-      scan.ref, // Product
-      scan.batchLot, // Lot
-      scan.location || setupInfo.location || "", // Location
-      stockStatus, // Stock status
-      unit, // Unit
-      conversionFactor,
+      countedQuantity,
+      countedQuantity,
+      zeroStock,
+      scan.ref,
+      scan.batchLot,
+      scan.location || setupInfo.location || "",
+      "A",
+      "UN",
+      "1",
     ].join(";");
   });
 
-  const csvContent = [line4, line5, ...scanLines].join("\n");
+  // Add unscanned lots only for REFs that were scanned
+  erpStock.forEach((item) => {
+    // Only process if this REF was scanned at least once
+    if (scannedRefs.has(item.ref)) {
+      const key = `${item.ref}-${item.lotNumber}-${item.location}`;
+      if (
+        !scans.some(
+          (scan) =>
+            `${scan.ref}-${scan.batchLot}-${scan.location || setupInfo.location}` ===
+            key
+        )
+      ) {
+        scanLines.push(
+          [
+            "S",
+            "",
+            "",
+            "",
+            setupInfo.storageSite,
+            "0",
+            "0",
+            "2", // Zero stock
+            item.ref,
+            item.lotNumber,
+            item.location,
+            "A",
+            "UN",
+            "1",
+          ].join(";")
+        );
+      }
+    }
+  });
+
+  const csvContent = [
+    `E,,${setupInfo.movementCode || "Stock Count"},1,${setupInfo.storageSite},,,,,${setupInfo.storageSite},,,,,,`,
+    `L,,,5,${setupInfo.storageSite},,,,,,,,,,`,
+    ...scanLines,
+  ].join("\n");
 
   // Generate filename
   const today = new Date().toISOString().split("T")[0].replace(/-/g, "");
