@@ -1,112 +1,143 @@
-**Guide to Running and Using the Local Python Server with a Tray Icon**
+**Guide to Using the Barcode Scanner Website**
 
 ---
 
 ### Overview
 
-This guide explains how to use a Python-based local HTTP server with a tray icon. The server serves files from the same directory where the script resides. It includes a system tray icon for easy control and launches a browser to access the server.
+The Barcode Scanner website is a powerful tool for managing stock receipt and stock count processes efficiently. This guide provides a detailed walkthrough of how to set up and use the scanner effectively, including scanning workflows, managing mappings, and exporting data for Sage X3.
 
 ---
 
-### Features
+### Setting Up a Scanning Session
 
-- Serves files (e.g., `index.html`) from the same folder as the script.
-- Includes a system tray icon with options to:
-  - Open the server in a browser.
-  - Stop the server.
-- Runs a local server accessible at `http://localhost:8000`.
+Before you begin scanning, set up the session as follows:
 
----
+1. **Select the Scan Type**: Choose between **Stock Receipt** or **Stock Count**.
+2. **Select the Storage Site**.
+3. **Choose the Movement Code**.
+4. **Input the Location**.
+5. **Activate REF Input Mode?**: Enable this option if not all references (REFs) are known beforehand.
 
-### Requirements
-
-1. A Windows system.
-2. Python installed (version 3.6 or newer).
-3. Required Python libraries:
-   - `pystray`
-   - `Pillow`
-4. The `launch.pyw` script.
-
-To install the required libraries, run the following command in a terminal:
-
-```
-pip install pystray Pillow
-```
+> **Note**: You can update the session setup at any time during the process by clicking on **“Change Setup”**. Changes will apply to subsequent scanned products.
 
 ---
 
-### Step-by-Step Instructions
+### Starting the Scanning Process
 
-#### 1. Setup
+1. Click on **Start Scanning**.
+2. **Prepare to Scan**:
+   - Focus the mouse cursor on the input field.
+   - Use the scanner to scan a barcode.
+3. **Handle the Scanned Data**:
+   - A new row will appear in the table.
+   - If no REF is associated with the barcode’s GTIN, input it manually.
+   - If a REF is already mapped, the focus will automatically skip the REF column.
+4. **Input Quantity**:
+   - Enter the quantity for products with the same barcode (not just the same REF).
+   - After inputting the quantity, the focus will automatically return to the scanner input field.
+5. Repeat the process for additional products.
 
-1. Copy the provided `launch.pyw` script to a folder.
-2. Place your files (e.g., `index.html`, `server_with_tray.py`) in the same folder.
+#### If the Product Has No GS1 Barcode or a Segmented Barcode
 
-#### 2. Start the Server
-
-1. Double-click the `launch.pyw` file to start the server.
-2. A system tray icon (a blue square with a white circle) will appear in the taskbar.
-
-#### 3. Open the Server in a Browser
-
-1. Right-click the tray icon.
-2. Select **Open Browser**.
-3. The browser will open `http://localhost:8000`, displaying your `index.html`.
-
-#### 4. Stop the Server
-
-1. Right-click the tray icon.
-2. Select **Quit** to stop the server and close the application.
+- Click on **Manual Entry**.
+- A new screen will appear where you can input the product’s details.
+- Click **Add** to confirm, or **Cancel** (or the cross icon) to discard.
 
 ---
 
-### Notes
+### Modifying Scanned Product Information
 
-- **Default Behavior**: The server automatically serves files from the folder containing the `launch.pyw` script. If your `index.html` doesn’t load, ensure it is in the same directory as the script.
-- **Port**: The server runs on port `8000`. If this port is in use, you’ll need to free it or use a different server setup.
-- **Troubleshooting**:
-  - If the browser displays “ERR\_EMPTY\_RESPONSE,” verify that the script is in the correct folder.
-  - Ensure your firewall is not blocking local connections.
+1. To modify a scanned product:
 
----
+   - Click on the **blue pen icon** at the end of the row you want to edit.
+   - A new screen will appear where you can update the product details.
+   - Click **Save Changes** to confirm or **Cancel** (or the cross icon) to discard changes.
 
-### FAQ
-
-#### Q1: How do I change the files being served?
-
-A: Replace the files (e.g., `index.html`) in the folder containing the script. Restart the server if necessary.
-
-#### Q2: Can I use this on another computer?
-
-A: Yes, copy the `launch.pyw` script and your files to the target computer. Install Python and the required libraries, then follow the steps in this guide.\
-\
-Important!: Before you do please export the GTINREFmapping so you can import it on the new computer. From now on the mappings wont be in sync with each other
-
-
-
-#### Q3: The server isn’t working. What should I do?
-
-A:
-
-1. Ensure the script is in the same folder as your files.
-2. Check the system tray for the server icon.
-3. Verify no other application is using port `8000`.
-4. Contact IT (Gérald Waerseggers) for further assistance.
+2. To delete a row:
+   - Click on the **red bin icon** at the end of the row you want to delete.
+   - A confirmation screen will appear.
+   - Click **Delete** to confirm or **Cancel** to discard.
 
 ---
 
-### Example Folder Structure
+### Finalizing the Scanning Session
 
-```
-ScannerFolder
-├── index.html
-├── server_with_tray.py
-└── launch.pyw
-```
-
-Place all your project files alongside the `launch.pyw` script. Then launch the script to serve your project locally.
+1. Review the table to ensure all information is complete and accurate.
+2. Click **Export CSV**:
+   - A CSV file will be generated and saved in your browser’s download folder.
+   - Use this file to update Sage X3 accordingly.
+3. To start a new session:
+   - Click **Clear All**.
+   - Update the setup if needed.
 
 ---
 
-Thank you for using this tool! If you have questions or need further help, reach out to the IT team.
+### Managing GTIN-REF Mappings
 
+A mapping between REF and GTIN is automatically created each time you scan a product and add a REF. For future scans of the same product, the REF will auto-fill after scanning.
+
+1. **Access Mappings**:
+
+   - Click on **Manage Mappings** to open the GTIN-REF Mappings screen.
+
+2. **Features on the GTIN-REF Mappings Screen**:
+   - View the GTIN-REF table.
+   - Import mappings.
+   - Export mappings.
+   - Add manual mappings.
+   - Edit or delete mappings.
+
+#### Exporting Mappings
+
+- To back up mappings or transfer them to another PC/browser:
+  1. Click **Export Mapping**.
+  2. A CSV file will be generated and saved in your browser’s download folder.
+
+#### Importing Mappings
+
+- To import mappings after switching PCs/browsers:
+  1. Click **Import Mapping**.
+  2. Select the exported CSV file.
+  3. **Important**: Ensure the file contains the latest mappings to avoid inconsistencies.
+
+#### Editing and Deleting Mappings
+
+- **Edit a Value**: Double-click on the value you want to modify.
+- **Delete a Row**: Click on the **red bin icon** next to the row you want to remove.
+- **Save Changes**: Always click **Save** after making edits to ensure data is updated.
+
+---
+
+### Key Notes
+
+- **Backup Your Mappings**: Regularly export mappings to avoid data loss and ensure a seamless transition between devices.
+- **Handle Manual Entries Carefully**: Use the manual entry feature for products without barcodes to ensure they are included in the scan data.
+- **Double-Check Exported Files**: Verify the exported CSV file before using it in Sage X3.
+
+---
+
+### Troubleshooting
+
+#### The scanner isn’t detecting a barcode:
+
+- Ensure the scanner is connected and functioning correctly.
+- Verify that the barcode is not damaged or poorly printed.
+- Adjust lighting conditions for better scanning accuracy.
+
+#### Mappings are not syncing:
+
+- Check if the correct mapping file is imported.
+- Ensure the mapping file is the latest version.
+
+---
+
+### Example Workflow
+
+1. **Setup the Session**: Select scan type, storage site, movement code, and location.
+2. **Start Scanning**: Scan barcodes and input necessary details (REF and quantity).
+3. **Export Data**: Save the session as a CSV file and use it in Sage X3.
+4. **Manage Mappings**: Regularly update and export mappings to maintain consistency.
+
+---
+
+If you have questions or need further assistance, contact Gérald Waerseggers at **geraldwae@gmail.com**.
