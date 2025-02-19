@@ -20,9 +20,6 @@ export function parseGS1(barcode: string): ParsedGS1Data {
     // Use the existing parser to get detailed parsing
     const parsed = parseBarcode(barcode);
     const result: ParsedGS1Data = {};
-    console.log(parsed);
-
-    console.log(result);
 
     // Map the parsed elements to our simplified format
     for (const item of parsed.parsedCodeItems) {

@@ -1,3 +1,5 @@
+import toast from "react-hot-toast";
+
 export async function loadMappingFile(
   filename: string,
 ): Promise<string | null> {
@@ -7,7 +9,7 @@ export async function loadMappingFile(
       const fileHandle = await root.getFileHandle(filename);
       const file = await fileHandle.getFile();
       return await file.text();
-    } catch (e) {
+    } catch {
       // File doesn't exist, create it with empty mapping
       const emptyMapping = {
         gtinToRef: {},
@@ -17,7 +19,7 @@ export async function loadMappingFile(
       return JSON.stringify(emptyMapping);
     }
   } catch (error) {
-    console.warn("Failed to access OPFS:", error);
+    toast.error("Failed to access OPFS: " + error);
     return null;
   }
 }
@@ -33,6 +35,6 @@ export async function saveMappingFile(
     await writable.write(content);
     await writable.close();
   } catch (error) {
-    console.error("Failed to save file to OPFS:", error);
+    toast.error("Failed to save file to OPFS: " + error);
   }
 }

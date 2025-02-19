@@ -1,4 +1,5 @@
 export interface ScanSetup {
+  stockCount: boolean;
   storageSite: string;
   movementCode: string;
   location: string;

@@ -1,10 +1,11 @@
-import { Dialog, DialogPanel, DialogTitle } from "@headlessui/react";
+import { Button, Dialog, DialogPanel, DialogTitle } from "@headlessui/react";
 import { AgGridReact } from "ag-grid-react";
-import { ColDef, themeQuartz } from "ag-grid-community";
-import { Button } from "@headlessui/react";
-import { Download, Upload } from "lucide-react";
+import { ColDef, themeQuartz, CellValueChangedEvent } from "ag-grid-community";
+import { Download, Plus, Trash2, Upload } from "lucide-react";
 import { gtinRefStore } from "../stores/gtinRefStore";
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
+import { ScanRecord } from "../types";
 
 interface MappingModalProps {
   isOpen: boolean;
@@ -16,17 +17,46 @@ interface MappingRow {
   ref: string;
 }
 
+// Add new interface for REF cell renderer
+interface CellRendererProps {
+  data: ScanRecord;
+  node: {
+    setDataValue: (field: string, value: string) => void;
+  };
+}
+
 export default function MappingModal({ isOpen, onClose }: MappingModalProps) {
   const [mappings, setMappings] = useState<MappingRow[]>([]);
 
   const columnDefs: ColDef[] = [
-    { field: "gtin", headerName: "GTIN", sortable: true, filter: true },
+    {
+      field: "gtin",
+      headerName: "GTIN",
+      sortable: true,
+      filter: true,
+      editable: true,
+    },
     {
       field: "ref",
       headerName: "REF",
       sortable: true,
       filter: true,
       resizable: true,
+      editable: true,
+    },
+    {
+      headerName: "Actions",
+      field: "actions",
+      cellRenderer: (params: CellRendererProps) => (
+        <Button
+          onClick={() => onDeleteMapping(params.data.gtin)}
+          className="p-1 text-red-600 hover:text-red-800"
+          title="Delete"
+        >
+          <Trash2 className="w-4 h-4" />
+        </Button>
+      ),
+      width: 100,
     },
   ];
 
@@ -40,6 +70,32 @@ export default function MappingModal({ isOpen, onClose }: MappingModalProps) {
       loadMappings();
     }
   }, [isOpen]);
+
+  const onCellValueChanged = (params: CellValueChangedEvent) => {
+    const updatedMappings = [...mappings];
+    const rowIndex = params.node.rowIndex;
+    const field = params.colDef.field as keyof MappingRow;
+    updatedMappings[rowIndex][field] = params.newValue;
+    setMappings(updatedMappings);
+  };
+
+  const onAddMapping = () => {
+    setMappings([...mappings, { gtin: "", ref: "" }]);
+  };
+
+  const onDeleteMapping = (gtin: string) => {
+    const updatedMappings = mappings.filter((mapping) => mapping.gtin !== gtin);
+    setMappings(updatedMappings);
+  };
+
+  const onSave = async () => {
+    try {
+      await gtinRefStore.setMappings(mappings);
+      onClose();
+    } catch (error) {
+      toast.error("Error saving mappings: " + error);
+    }
+  };
 
   return (
     <Dialog open={isOpen} onClose={onClose} className="relative z-50">
@@ -66,7 +122,7 @@ export default function MappingModal({ isOpen, onClose }: MappingModalProps) {
                     // Clear the input value to allow importing the same file again
                     e.target.value = "";
                   } catch (error) {
-                    console.error("Error importing mappings:", error);
+                    toast.error("Error importing mappings: " + error);
                   }
                 }
               }}
@@ -75,15 +131,22 @@ export default function MappingModal({ isOpen, onClose }: MappingModalProps) {
               onClick={() => document.getElementById("mappingUpload")?.click()}
               className="flex items-center gap-2 px-3 py-1 text-sm bg-gray-200 hover:bg-gray-300 rounded-md"
             >
-              <Upload className="w-4 h-4" />
+              <Download className="w-4 h-4" />
               Import Mapping
             </Button>
             <Button
               onClick={() => gtinRefStore.exportToCSV()}
               className="flex items-center gap-2 px-3 py-1 text-sm bg-gray-200 hover:bg-gray-300 rounded-md"
             >
-              <Download className="w-4 h-4" />
+              <Upload className="w-4 h-4" />
               Export Mapping
+            </Button>
+            <Button
+              onClick={onAddMapping}
+              className="flex items-center gap-2 px-3 py-1 text-sm bg-gray-200 hover:bg-gray-300 rounded-md"
+            >
+              <Plus className="w-4 h-4" />
+              Add Mapping
             </Button>
           </div>
 
@@ -96,15 +159,22 @@ export default function MappingModal({ isOpen, onClose }: MappingModalProps) {
                 flex: 1,
                 resizable: true,
               }}
+              onCellValueChanged={onCellValueChanged}
             />
           </div>
 
-          <div className="mt-4 flex justify-end">
+          <div className="mt-4 flex justify-end gap-2">
             <Button
               onClick={onClose}
               className="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-md"
             >
-              Close
+              Cancel
+            </Button>
+            <Button
+              onClick={onSave}
+              className="px-4 py-2 bg-blue-500 text-white hover:bg-blue-600 rounded-md"
+            >
+              Save
             </Button>
           </div>
         </DialogPanel>

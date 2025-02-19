@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { parseGS1 } from "./utils/gs1Parser";
-import { Download, Trash2, ScanLine, Database } from "lucide-react";
+import { Trash2, ScanLine, Database, Upload } from "lucide-react";
 import { exportScansToCSV } from "./utils/exportScans";
 
 import EditModal from "./components/EditModal";
@@ -12,10 +12,13 @@ import AddModal from "./components/AddModal";
 import DeleteModal from "./components/DeleteModal";
 import { Button } from "@headlessui/react";
 import MappingModal from "./components/MappingModal";
+import { exportStockCountCSV } from "./utils/stockCountExport";
+import toast from "react-hot-toast";
 
 export default function BarcodeScanner() {
   const [isSetup, setIsSetup] = useState(false);
   const [setupInfo, setSetupInfo] = useState<ScanSetup>({
+    stockCount: false,
     storageSite: "",
     movementCode: "",
     location: "",
@@ -60,7 +63,7 @@ export default function BarcodeScanner() {
       setScans((prev) => [...prev, newScan]);
       setError(null);
     } catch (err) {
-      console.error("Scan error:", err);
+      toast.error((err as Error).message);
       setError(err instanceof Error ? err.message : "Invalid barcode format");
     }
   };
@@ -92,7 +95,11 @@ export default function BarcodeScanner() {
   };
 
   const downloadCSV = () => {
-    exportScansToCSV(scans, setupInfo);
+    if (setupInfo.stockCount) {
+      exportStockCountCSV(scans, setupInfo);
+    } else {
+      exportScansToCSV(scans, setupInfo);
+    }
   };
 
   const clearScans = () => {
@@ -183,7 +190,8 @@ export default function BarcodeScanner() {
               <ScanLine className="w-6 h-6 text-blue-600" />
 
               <h1 className="text-2xl font-bold text-gray-800">
-                GS1 Barcode Scanner
+                Barcode Scanner:{" "}
+                {setupInfo.stockCount ? "Stock Count" : "Stock Receipt"}
               </h1>
             </div>
             <div className="flex gap-2">
@@ -192,7 +200,7 @@ export default function BarcodeScanner() {
                 disabled={scans.length === 0}
                 className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <Download className="w-4 h-4" />
+                <Upload className="w-4 h-4" />
                 Export CSV
               </Button>
               <Button
