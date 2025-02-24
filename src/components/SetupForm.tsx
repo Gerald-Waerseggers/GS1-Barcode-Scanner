@@ -46,7 +46,9 @@ const SetupForm: React.FC<SetupFormProps> = ({
       await deleteERPStockCount();
       const result = await loadERPStockCount(file);
       if (result.length > 0) {
-        toast.success("ERP stock count loaded successfully");
+        toast.success(
+          `ERP stock count successfully loaded ${result.length} items`,
+        );
       } else {
         toast.error("Failed to load ERP stock count");
         // Clear the input value to allow uploading the same file again

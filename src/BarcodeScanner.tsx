@@ -243,8 +243,9 @@ export default function BarcodeScanner() {
             </div>
             <div className="flex gap-2">
               <Button
+                disabled={!setupInfo.stockCount}
                 onClick={() => setIsERPStockModalOpen(true)}
-                className="flex items-center gap-2 px-3 py-1 text-sm bg-gray-200 hover:bg-gray-300 rounded-md"
+                className="flex items-center gap-2 px-3 py-1 text-sm bg-gray-200 hover:bg-gray-300 rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Select Zero Count Items
               </Button>
