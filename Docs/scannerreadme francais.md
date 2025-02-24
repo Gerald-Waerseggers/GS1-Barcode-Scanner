@@ -26,15 +26,21 @@ Avant de commencer la numérisation, configurez la session comme suit :
 
 1. Cliquez sur **Démarrer la numérisation**.
 2. **Préparer la numérisation** :
+
 - Placez le curseur de la souris sur le champ de saisie.
 - Utilisez le scanner pour scanner un code-barres.
+
 3. **Gérer les données numérisées** :
+
 - Une nouvelle ligne apparaît dans le tableau.
 - Si aucune REF n'est associée au GTIN du code-barres, saisissez-la manuellement.
 - Si une REF est déjà mappée, le focus ignorera automatiquement la colonne REF.
+
 4. **Saisir la quantité** :
+
 - Saisissez la quantité pour les produits ayant le même code-barres (pas seulement la même REF).
 - Après avoir saisi la quantité, le focus reviendra automatiquement sur le champ de saisie du scanner.
+
 5. Répétez le processus pour les produits supplémentaires.
 
 #### Si le produit n'a pas de code-barres GS1 ou un code-barres segmenté
@@ -54,6 +60,7 @@ Avant de commencer la numérisation, configurez la session comme suit :
 - Cliquez sur **Enregistrer les modifications** pour confirmer ou sur **Annuler** (ou sur l'icône en forme de croix) pour annuler les modifications.
 
 2. Pour supprimer une ligne :
+
 - Cliquez sur l'**icône en forme de corbeille rouge** à la fin de la ligne que vous souhaitez supprimer.
 - Un écran de confirmation apparaîtra.
 - Cliquez sur **Supprimer** pour confirmer ou sur **Annuler** pour annuler.
@@ -64,9 +71,12 @@ Avant de commencer la numérisation, configurez la session comme suit :
 
 1. Examinez le tableau pour vous assurer que toutes les informations sont complètes et exactes.
 2. Cliquez sur **Exporter CSV** :
+
 - Un fichier CSV sera généré et enregistré dans le dossier de téléchargement de votre navigateur.
 - Utilisez ce fichier pour mettre à jour Sage X3 en conséquence.
+
 3. Pour démarrer une nouvelle session :
+
 - Cliquez sur **Tout effacer**.
 - Mettez à jour la configuration si nécessaire.
 
@@ -81,6 +91,7 @@ Un mappage entre REF et GTIN est automatiquement créé chaque fois que vous num
 - Cliquez sur **Gérer les mappages** pour ouvrir l'écran Mappages GTIN-REF.
 
 2. **Fonctionnalités de l'écran Mappages GTIN-REF** :
+
 - Afficher le tableau GTIN-REF.
 - Importer des mappages.
 - Exporter des mappages.
@@ -90,12 +101,14 @@ Un mappage entre REF et GTIN est automatiquement créé chaque fois que vous num
 #### Exporter des mappages
 
 - Pour sauvegarder des mappages ou les transférer vers un autre PC/navigateur :
+
 1. Cliquez sur **Exporter le mappage**.
 2. Un fichier CSV sera généré et enregistré dans le dossier de téléchargement de votre navigateur.
 
 #### Importation de mappages
 
 - Pour importer des mappages après avoir changé de PC/navigateur :
+
 1. Cliquez sur **Importer le mappage**.
 2. Sélectionnez le fichier CSV exporté.
 3. **Important** : Assurez-vous que le fichier contient les mappages les plus récents pour éviter les incohérences.

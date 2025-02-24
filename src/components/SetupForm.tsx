@@ -38,7 +38,7 @@ const SetupForm: React.FC<SetupFormProps> = ({
   };
 
   const handleERPFileUpload = async (
-    e: React.ChangeEvent<HTMLInputElement>
+    e: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -132,7 +132,10 @@ const SetupForm: React.FC<SetupFormProps> = ({
                   <Label className="block text-sm font-medium text-gray-700">
                     ERP (Sage X3) Stock Count File
                   </Label>
-                  <a className="text-sm text-blue-600" href="http://213.207.99.88:8124/syracuse-main/html/main.html?url=/trans/x3/erp/MMLIVE/$sessions?f%3DGEXPOBJ%252F2%252F%252FM%252F%26profile%3D~(loc~'en-US~role~'57cffaa1-ff5b-4b2e-bdb0-b9870562975c~ep~'1cd0ef0b-195b-4051-b14e-7bf20f0e31bd~appConn~(KEY1~'x3))">
+                  <a
+                    className="text-sm text-blue-600"
+                    href="http://213.207.99.88:8124/syracuse-main/html/main.html?url=/trans/x3/erp/MMLIVE/$sessions?f%3DGEXPOBJ%252F2%252F%252FM%252F%26profile%3D~(loc~'en-US~role~'57cffaa1-ff5b-4b2e-bdb0-b9870562975c~ep~'1cd0ef0b-195b-4051-b14e-7bf20f0e31bd~appConn~(KEY1~'x3))"
+                  >
                     Sage X3 Link to Extract file
                   </a>
                   <Input

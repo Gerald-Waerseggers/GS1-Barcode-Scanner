@@ -110,7 +110,7 @@ const RefCellRenderer: React.FC<RefCellRendererProps> = (props) => {
           props.node.setDataValue("ref", existingRef.replace(/\./g, "-"));
           // Focus quantity input after auto-filling REF
           const lastRow = document.querySelector(
-            '.ag-row-last input[type="number"]'
+            '.ag-row-last input[type="number"]',
           );
           (lastRow as HTMLElement)?.focus();
         }
@@ -142,7 +142,7 @@ const RefCellRenderer: React.FC<RefCellRendererProps> = (props) => {
               props.node.setDataValue("ref", formattedRef);
               // Find and focus the quantity input
               const lastRow = document.querySelector(
-                '.ag-row-last input[type="number"]'
+                '.ag-row-last input[type="number"]',
               );
               (lastRow as HTMLElement)?.focus();
             }
@@ -205,7 +205,7 @@ const ScansGrid: React.FC<ScansGridProps> = ({ scans, onEdit, onDelete }) => {
 
   return (
     <div className="overflow-x-auto">
-      <div className=" w-full">
+      <div className="w-full">
         <AgGridReact<ScanRecord>
           theme={themeQuartz}
           loadThemeGoogleFonts={true}

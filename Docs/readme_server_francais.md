@@ -23,8 +23,10 @@ Ce guide explique comment utiliser un serveur HTTP local basé sur Python avec u
 1. Un système Windows.
 2. Python installé (version 3.6 ou plus récente).
 3. Bibliothèques Python requises :
+
 - `pystray`
 - `Pillow`
+
 4. Le script `launch.pyw`.
 
 Pour installer les bibliothèques requises, exécutez la commande suivante dans un terminal :
@@ -65,7 +67,7 @@ pip install pystray Pillow
 - **Comportement par défaut** : le serveur sert automatiquement les fichiers du dossier contenant le script `launch.pyw`. Si votre `index.html` ne se charge pas, assurez-vous qu'il se trouve dans le même répertoire que le script.
 - **Port** : le serveur fonctionne sur le port `8000`. Si ce port est utilisé, vous devrez le libérer ou utiliser une configuration de serveur différente.
 - **Dépannage** :
-- Si le navigateur affiche « ERR\_EMPTY\_RESPONSE », vérifiez que le script se trouve dans le bon dossier.
+- Si le navigateur affiche « ERR_EMPTY_RESPONSE », vérifiez que le script se trouve dans le bon dossier.
 - Assurez-vous que votre pare-feu ne bloque pas les connexions locales.
 
 ---

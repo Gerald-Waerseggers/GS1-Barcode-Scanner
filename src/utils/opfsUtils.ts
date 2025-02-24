@@ -1,7 +1,7 @@
 import toast from "react-hot-toast";
 
 export async function loadMappingFile(
-  filename: string
+  filename: string,
 ): Promise<string | null> {
   try {
     const root = await navigator.storage.getDirectory();
@@ -26,7 +26,7 @@ export async function loadMappingFile(
 
 export async function saveMappingFile(
   filename: string,
-  content: string
+  content: string,
 ): Promise<void> {
   try {
     const root = await navigator.storage.getDirectory();
@@ -61,7 +61,7 @@ export async function loadERPStockCount(file: File): Promise<ERPStockCount[]> {
     const parts = firstLine.split(";");
     if (parts.length !== 5 || parts[0] !== "S") {
       throw new Error(
-        "Invalid file format. Expected: S;REF;Lot;Location;Quantity"
+        "Invalid file format. Expected: S;REF;Lot;Location;Quantity",
       );
     }
 
@@ -106,7 +106,7 @@ export async function loadERPStockCount(file: File): Promise<ERPStockCount[]> {
 
 export async function saveERPStockCount(
   filename: string,
-  content: string
+  content: string,
 ): Promise<void> {
   try {
     const root = await navigator.storage.getDirectory();
@@ -120,7 +120,7 @@ export async function saveERPStockCount(
 }
 
 export async function getERPStockCount(
-  filename: string = "erp-stock.json"
+  filename: string = "erp-stock.json",
 ): Promise<ERPStockCount[]> {
   try {
     const content = await loadMappingFile(filename);
@@ -132,7 +132,7 @@ export async function getERPStockCount(
 }
 
 export async function deleteERPStockCount(
-  filename: string = "erp-stock.json"
+  filename: string = "erp-stock.json",
 ): Promise<void> {
   try {
     const root = await navigator.storage.getDirectory();

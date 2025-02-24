@@ -65,7 +65,7 @@ pip install pystray Pillow
 - **Default Behavior**: The server automatically serves files from the folder containing the `launch.pyw` script. If your `index.html` doesn’t load, ensure it is in the same directory as the script.
 - **Port**: The server runs on port `8000`. If this port is in use, you’ll need to free it or use a different server setup.
 - **Troubleshooting**:
-  - If the browser displays “ERR\_EMPTY\_RESPONSE,” verify that the script is in the correct folder.
+  - If the browser displays “ERR_EMPTY_RESPONSE,” verify that the script is in the correct folder.
   - Ensure your firewall is not blocking local connections.
 
 ---
@@ -81,8 +81,6 @@ A: Replace the files (e.g., `index.html`) in the folder containing the script. R
 A: Yes, copy the `launch.pyw` script and your files to the target computer. Install Python and the required libraries, then follow the steps in this guide.\
 \
 Important!: Before you do please export the GTINREFmapping so you can import it on the new computer. From now on the mappings wont be in sync with each other
-
-
 
 #### Q3: The server isn’t working. What should I do?
 
@@ -109,4 +107,3 @@ Place all your project files alongside the `launch.pyw` script. Then launch the 
 ---
 
 Thank you for using this tool! If you have questions or need further help, reach out to the IT team.
-
