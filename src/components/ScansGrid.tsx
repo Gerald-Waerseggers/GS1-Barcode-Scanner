@@ -220,6 +220,8 @@ const ScansGrid: React.FC<ScansGridProps> = ({ scans, onEdit, onDelete }) => {
           suppressCellFocus={true}
           domLayout="autoHeight"
         />
+
+        <h3 className="mt-2 text-center">Total Scanned: {scans.length}</h3>
       </div>
     </div>
   );

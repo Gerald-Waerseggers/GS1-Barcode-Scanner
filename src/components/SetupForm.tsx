@@ -135,10 +135,10 @@ const SetupForm: React.FC<SetupFormProps> = ({
                     ERP (Sage X3) Stock Count File
                   </Label>
                   <a
-                    className="text-sm text-blue-600"
+                    className="text-sm text-blue-600 underline underline-offset-2"
                     href="http://213.207.99.88:8124/syracuse-main/html/main.html?url=/trans/x3/erp/MMLIVE/$sessions?f%3DGEXPOBJ%252F2%252F%252FM%252F%26profile%3D~(loc~'en-US~role~'57cffaa1-ff5b-4b2e-bdb0-b9870562975c~ep~'1cd0ef0b-195b-4051-b14e-7bf20f0e31bd~appConn~(KEY1~'x3))"
                   >
-                    Sage X3 Link to Extract file
+                    Sage X3 Link to Extract file (select YSTLOTLOC)
                   </a>
                   <Input
                     type="file"

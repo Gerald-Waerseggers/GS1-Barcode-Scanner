@@ -15,7 +15,8 @@ import MappingModal from "./components/MappingModal";
 import { exportStockCountCSV } from "./utils/stockCountExport";
 import toast from "react-hot-toast";
 import ERPStockModal from "./components/ERPStockModal";
-import { getERPStockCount } from "./utils/opfsUtils";
+import ExportInfoModal from "./components/ExportInfoModal";
+import StockReceiptExportInfoModal from "./components/StockReceiptExportInfoModal";
 
 export default function BarcodeScanner() {
   const [isSetup, setIsSetup] = useState(false);
@@ -35,6 +36,9 @@ export default function BarcodeScanner() {
   const [deletingScan, setDeletingScan] = useState<ScanRecord | null>(null);
   const [isMappingModalOpen, setIsMappingModalOpen] = useState(false);
   const [isERPStockModalOpen, setIsERPStockModalOpen] = useState(false);
+  const [showExportInfo, setShowExportInfo] = useState(true);
+  const [showStockReceiptExportInfo, setShowStockReceiptExportInfo] =
+    useState(false);
 
   const handleSetupComplete = (newSetupInfo: ScanSetup) => {
     setSetupInfo((prevSetup) => ({
@@ -97,11 +101,13 @@ export default function BarcodeScanner() {
     setEditingScan(null);
   };
 
-  const downloadCSV = () => {
+  const downloadCSV = async () => {
     if (setupInfo.stockCount) {
-      exportStockCountCSV(scans, setupInfo);
+      await exportStockCountCSV(scans, setupInfo);
+      toast.success("Export completed successfully");
     } else {
-      exportScansToCSV(scans, setupInfo);
+      await exportScansToCSV(scans, setupInfo);
+      toast.success("Export completed successfully");
     }
   };
 
@@ -129,7 +135,6 @@ export default function BarcodeScanner() {
       ref: item.ref,
       gtin: "", // Empty GTIN for zero count records
       batchLot: item.lotNumber,
-      location: item.location,
       quantity: 0, // Set quantity to 0
       timestamp: currentTimestamp, // Use timestamp instead of scannedAt
       expirationDate: "", // Empty expiration date for zero count records
@@ -162,6 +167,20 @@ export default function BarcodeScanner() {
     });
 
     toast.success(`Added ${zeroCountRecords.length} zero count records`);
+  };
+
+  const handleExport = async () => {
+    try {
+      downloadCSV();
+      if (setupInfo.stockCount) {
+        setShowExportInfo(true);
+      } else {
+        setShowStockReceiptExportInfo(true);
+      }
+    } catch (error) {
+      console.error("Export failed:", error);
+      toast.error("Export failed: " + error);
+    }
   };
 
   useEffect(() => {
@@ -250,7 +269,7 @@ export default function BarcodeScanner() {
                 Select Zero Count Items
               </Button>
               <Button
-                onClick={downloadCSV}
+                onClick={handleExport}
                 disabled={scans.length === 0}
                 className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
@@ -314,6 +333,14 @@ export default function BarcodeScanner() {
         onClose={() => setIsERPStockModalOpen(false)}
         onSelectZeroCount={handleZeroCountSelection} // Correctly passing the function
         existingScans={scans}
+      />
+      <ExportInfoModal
+        isOpen={showExportInfo}
+        onClose={() => setShowExportInfo(false)}
+      />
+      <StockReceiptExportInfoModal
+        isOpen={showStockReceiptExportInfo}
+        onClose={() => setShowStockReceiptExportInfo(false)}
       />
     </div>
   );
