@@ -36,7 +36,7 @@ export default function BarcodeScanner() {
   const [deletingScan, setDeletingScan] = useState<ScanRecord | null>(null);
   const [isMappingModalOpen, setIsMappingModalOpen] = useState(false);
   const [isERPStockModalOpen, setIsERPStockModalOpen] = useState(false);
-  const [showExportInfo, setShowExportInfo] = useState(true);
+  const [showExportInfo, setShowExportInfo] = useState(false);
   const [showStockReceiptExportInfo, setShowStockReceiptExportInfo] =
     useState(false);
 
