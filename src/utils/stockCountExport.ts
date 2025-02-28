@@ -89,7 +89,7 @@ export async function exportStockCountCSV(
   });
 
   const csvContent = [
-    `E;;${setupInfo.movementCode || "Stock Count"};1;${setupInfo.storageSite};;;;;${setupInfo.storageSite};;;;;;`,
+    `E;;${setupInfo.movementCode || "Stock Count"};1;${setupInfo.storageSite};;;;${setupInfo.storageSite};;;;;;`,
     `L;;;5;${setupInfo.storageSite};;;;;;;;;;`,
     ...scanLines,
   ].join("\n");

@@ -21,9 +21,17 @@ export default function ExportInfoModal({
 
           <div className="space-y-6 text-gray-600">
             <section>
-              <h3 className="font-medium text-black mb-2">
+              <h3 className="font-medium text-black ">
                 Sage X3 Import Steps:
               </h3>
+              <a
+                    className="text-sm text-blue-600 underline underline-offset-2 mb-2"
+                    href="http://213.207.99.88:8124/syracuse-main/html/main.html?url=/trans/x3/erp/MMLIVE/$sessions?f%3DGIMPOBJ%252F2%252F%252FM%252F%26profile%3D~(loc~'en-US~role~'57cffaa1-ff5b-4b2e-bdb0-b9870562975c~ep~'1cd0ef0b-195b-4051-b14e-7bf20f0e31bd~appConn~(KEY1~'x3))"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Sage X3 Link to Import file (select YINV)
+                  </a>
               <ol className="list-decimal ml-5 space-y-2">
                 <li>
                   Navigate to{" "}
