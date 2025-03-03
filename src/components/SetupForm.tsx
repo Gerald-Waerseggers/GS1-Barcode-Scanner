@@ -59,10 +59,9 @@ const SetupForm: React.FC<SetupFormProps> = ({
 
   const handleMovementCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     // Replace spaces with underscores
-    const value = e.target.value.replace(/\s/g, '_');
+    const value = e.target.value.replace(/\s/g, "_");
     setMovementCode(value);
   };
-
 
   return (
     <div className="min-h-screen bg-gray-50 p-8">

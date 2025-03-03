@@ -16,4 +16,5 @@ export interface ScanRecord {
   movementCode: string;
   location: string;
   ref?: string;
+  notInERP?: boolean;
 }

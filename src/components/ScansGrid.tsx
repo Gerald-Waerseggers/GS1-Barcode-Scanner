@@ -3,7 +3,7 @@ import React, { useRef, useEffect } from "react";
 import { AgGridReact } from "ag-grid-react";
 import { ScanRecord } from "../types";
 import { Pencil, Trash2 } from "lucide-react";
-import { ColDef, themeQuartz } from "ag-grid-community";
+import { ColDef, ITooltipParams, themeQuartz } from "ag-grid-community";
 import { Button } from "@headlessui/react";
 import { gtinRefStore } from "../stores/gtinRefStore";
 
@@ -11,6 +11,8 @@ interface ScansGridProps {
   scans: ScanRecord[];
   onEdit: (scan: ScanRecord) => void;
   onDelete: (scan: ScanRecord) => void;
+  erpRefs: Set<string>;
+  isStockCount?: boolean;
 }
 
 // Define the ActionCellRenderer component.
@@ -154,7 +156,13 @@ const RefCellRenderer: React.FC<RefCellRendererProps> = (props) => {
   return data.ref;
 };
 
-const ScansGrid: React.FC<ScansGridProps> = ({ scans, onEdit, onDelete }) => {
+const ScansGrid: React.FC<ScansGridProps> = ({
+  scans,
+  onEdit,
+  onDelete,
+  erpRefs = new Set(),
+  isStockCount = false,
+}) => {
   const columnDefs = [
     {
       field: "timestamp",
@@ -169,6 +177,20 @@ const ScansGrid: React.FC<ScansGridProps> = ({ scans, onEdit, onDelete }) => {
       field: "ref",
       headerName: "REF",
       cellRenderer: RefCellRenderer,
+      cellClass: (params) => {
+        // Add light red background for REFs not in ERP
+        if (isStockCount && params.value && !erpRefs.has(params.value)) {
+          return "bg-red-100";
+        }
+        return "";
+      },
+      // Add tooltip for REFs not in ERP
+      tooltipValueGetter: (params) => {
+        if (isStockCount && params.value && !erpRefs.has(params.value)) {
+          return "This REF is not found in the ERP system";
+        }
+        return "";
+      },
     },
     { field: "batchLot", headerName: "Batch/Lot" },
     {
@@ -213,6 +235,7 @@ const ScansGrid: React.FC<ScansGridProps> = ({ scans, onEdit, onDelete }) => {
           columnDefs={columnDefs as ColDef<ScanRecord>[]}
           defaultColDef={defaultColDef}
           autoSizeStrategy={autoSizeStrategy}
+          tooltipShowDelay={50}
           components={{
             ActionCellRenderer: ActionCellRenderer,
           }}

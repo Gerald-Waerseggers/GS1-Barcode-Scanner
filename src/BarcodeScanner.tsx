@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { parseGS1 } from "./utils/gs1Parser";
 import { Trash2, ScanLine, Database, Upload } from "lucide-react";
 import { exportScansToCSV } from "./utils/exportScans";
@@ -17,6 +17,7 @@ import toast from "react-hot-toast";
 import ERPStockModal from "./components/ERPStockModal";
 import ExportInfoModal from "./components/ExportInfoModal";
 import StockReceiptExportInfoModal from "./components/StockReceiptExportInfoModal";
+import { getERPStockCount } from "./utils/opfsUtils";
 
 export default function BarcodeScanner() {
   const [isSetup, setIsSetup] = useState(false);
@@ -39,6 +40,28 @@ export default function BarcodeScanner() {
   const [showExportInfo, setShowExportInfo] = useState(false);
   const [showStockReceiptExportInfo, setShowStockReceiptExportInfo] =
     useState(false);
+  const [erpRefs, setErpRefs] = useState<Set<string>>(new Set());
+  const erpRefsLoaded = useRef(false);
+
+  // Load ERP REFs when in stock count mode
+  useEffect(() => {
+    if (setupInfo.stockCount && !erpRefsLoaded.current) {
+      loadERPRefs();
+    }
+  }, [setupInfo.stockCount]);
+
+  const loadERPRefs = async () => {
+    try {
+      const erpStock = await getERPStockCount();
+      const refSet = new Set(erpStock.map((item) => item.ref));
+      setErpRefs(refSet);
+      erpRefsLoaded.current = true;
+      console.log(`Loaded ${refSet.size} REFs from ERP`);
+    } catch (error) {
+      console.error("Failed to load ERP REFs:", error);
+      toast.error("Failed to load ERP reference data");
+    }
+  };
 
   const handleSetupComplete = (newSetupInfo: ScanSetup) => {
     setSetupInfo((prevSetup) => ({
@@ -67,6 +90,16 @@ export default function BarcodeScanner() {
         ...setupInfo,
         ref: setupInfo.addRefMode ? "" : undefined,
       };
+
+      // Check if REF exists in ERP when in stock count mode
+      if (setupInfo.stockCount && newScan.ref && erpRefs.size > 0) {
+        if (!erpRefs.has(newScan.ref)) {
+          toast.error(`Warning: REF "${newScan.ref}" not found in ERP system`);
+          // Mark the scan as not in ERP
+          newScan.notInERP = true;
+        }
+      }
+
       setScans((prev) => [...prev, newScan]);
       setError(null);
     } catch (err) {
@@ -297,6 +330,8 @@ export default function BarcodeScanner() {
             scans={scans}
             onEdit={handleEdit}
             onDelete={handleDelete}
+            erpRefs={erpRefs}
+            isStockCount={setupInfo.stockCount}
           />
         </div>
       </div>
