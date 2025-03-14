@@ -94,7 +94,7 @@ export async function exportStockCountCSV(
     `E;;${setupInfo.movementCode || "Stock Count"};1;${setupInfo.storageSite};;;;${setupInfo.storageSite};;;;;;`,
     `L;;;5;${setupInfo.storageSite};;;;;;;;;;`,
     ...scanLines,
-  ].join("\n");
+  ].join("\r\n");
 
   // Generate filename
   const today = new Date().toISOString().split("T")[0].replace(/-/g, "");
