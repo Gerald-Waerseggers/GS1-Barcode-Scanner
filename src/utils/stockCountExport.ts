@@ -94,6 +94,7 @@ export async function exportStockCountCSV(
     `E;;${setupInfo.movementCode || "Stock Count"};1;${setupInfo.storageSite};;;;${setupInfo.storageSite};;;;;;`,
     `L;;;5;${setupInfo.storageSite};;;;;;;;;;`,
     ...scanLines,
+    ""
   ].join("\r\n");
 
   // Generate filename
