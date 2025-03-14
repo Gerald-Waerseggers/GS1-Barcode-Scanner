@@ -52,6 +52,7 @@ const ScanInputForm: React.FC<
       </div>
       {error && <p className="mt-2 text-red-600 text-sm">{error}</p>}
     </form>
+    
   );
 };
 

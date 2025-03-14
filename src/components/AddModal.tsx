@@ -19,7 +19,7 @@ const AddModal: React.FC<AddModalProps> = ({
   const [formData, setFormData] = useState<Partial<ScanRecord>>({
     gtin: "",
     batchLot: "",
-    quantity: undefined,
+    quantity: 1,
     expirationDate: "",
     ref: "",
   });

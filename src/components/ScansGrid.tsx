@@ -61,41 +61,7 @@ const ActionCellRenderer: React.FC<ActionCellRendererProps> = (props) => {
 
 const QuantityCellRenderer: React.FC<QuantityCellRendererProps> = (props) => {
   const { data } = props;
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    // Only focus if REF is already set (or REF mode is disabled)
-    if (
-      !data.quantity &&
-      data.quantity !== 0 &&
-      (data.ref === undefined || data.ref)
-    ) {
-      inputRef.current?.focus();
-    }
-  }, [data.quantity, data.ref]);
-
-  if (!data.quantity && data.quantity !== 0) {
-    return (
-      <input
-        ref={inputRef}
-        aria-label="Quantity"
-        type="number"
-        className="w-full h-full px-2 border rounded"
-        onKeyDown={(e) => {
-          if (e.key === "Enter") {
-            const newValue =
-              parseInt((e.target as HTMLInputElement).value) || 0;
-            props.node.setDataValue("quantity", newValue);
-            // Focus back to scan input
-            document
-              .querySelector<HTMLInputElement>('input[type="text"]')
-              ?.focus();
-          }
-        }}
-      />
-    );
-  }
-  return data.quantity;
+  return data.quantity || 0;
 };
 
 const RefCellRenderer: React.FC<RefCellRendererProps> = (props) => {
@@ -112,7 +78,7 @@ const RefCellRenderer: React.FC<RefCellRendererProps> = (props) => {
           props.node.setDataValue("ref", existingRef.replace(/\./g, "-"));
           // Focus quantity input after auto-filling REF
           const lastRow = document.querySelector(
-            '.ag-row-last input[type="number"]',
+            '.ag-row-last input[type="number"]'
           );
           (lastRow as HTMLElement)?.focus();
         }
@@ -144,7 +110,7 @@ const RefCellRenderer: React.FC<RefCellRendererProps> = (props) => {
               props.node.setDataValue("ref", formattedRef);
               // Find and focus the quantity input
               const lastRow = document.querySelector(
-                '.ag-row-last input[type="number"]',
+                '.ag-row-last input[type="number"]'
               );
               (lastRow as HTMLElement)?.focus();
             }
@@ -240,6 +206,8 @@ const ScansGrid: React.FC<ScansGridProps> = ({
             ActionCellRenderer: ActionCellRenderer,
           }}
           animateRows={true}
+          sortingOrder={["desc", "asc", null]}
+          defaultSortModel={[{ colId: "timestamp", sort: "desc" }]}
           suppressCellFocus={true}
           domLayout="autoHeight"
         />

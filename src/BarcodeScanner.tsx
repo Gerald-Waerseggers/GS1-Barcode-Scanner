@@ -84,23 +84,102 @@ export default function BarcodeScanner() {
         return;
       }
 
-      const newScan: ScanRecord = {
-        timestamp: new Date().toISOString(),
-        ...parsedData,
-        ...setupInfo,
-        ref: setupInfo.addRefMode ? "" : undefined,
-      };
+      // For debugging
+      console.log("Parsed data:", parsedData);
 
-      // Check if REF exists in ERP when in stock count mode
-      if (setupInfo.stockCount && newScan.ref && erpRefs.size > 0) {
-        if (!erpRefs.has(newScan.ref)) {
-          toast.error(`Warning: REF "${newScan.ref}" not found in ERP system`);
-          // Mark the scan as not in ERP
-          newScan.notInERP = true;
+      setScans((prevScans) => {
+        // Find existing scan with same REF/GTIN and batch/lot
+        const existingIndex = prevScans.findIndex((scan) => {
+          // Match by REF if available
+          if (parsedData.ref && scan.ref) {
+            const refsMatch = parsedData.ref === scan.ref;
+            const lotsMatch =
+              (parsedData.batchLot || "") === (scan.batchLot || "");
+            const locationsMatch =
+              (setupInfo.location || "") === (scan.location || "");
+
+            console.log(
+              `Comparing REFs: ${parsedData.ref} vs ${scan.ref}, match: ${refsMatch}`
+            );
+            console.log(
+              `Comparing lots: ${parsedData.batchLot || ""} vs ${scan.batchLot || ""}, match: ${lotsMatch}`
+            );
+            console.log(
+              `Comparing locations: ${setupInfo.location || ""} vs ${scan.location || ""}, match: ${locationsMatch}`
+            );
+
+            return refsMatch && lotsMatch && locationsMatch;
+          }
+
+          // If no REF, match by GTIN
+          if (parsedData.gtin && scan.gtin) {
+            const gtinsMatch = parsedData.gtin === scan.gtin;
+            const lotsMatch =
+              (parsedData.batchLot || "") === (scan.batchLot || "");
+            const locationsMatch =
+              (setupInfo.location || "") === (scan.location || "");
+
+            console.log(
+              `Comparing GTINs: ${parsedData.gtin} vs ${scan.gtin}, match: ${gtinsMatch}`
+            );
+            console.log(
+              `Comparing lots: ${parsedData.batchLot || ""} vs ${scan.batchLot || ""}, match: ${lotsMatch}`
+            );
+            console.log(
+              `Comparing locations: ${setupInfo.location || ""} vs ${scan.location || ""}, match: ${locationsMatch}`
+            );
+
+            return gtinsMatch && lotsMatch && locationsMatch;
+          }
+
+          return false;
+        });
+
+        console.log("Existing index:", existingIndex);
+
+        if (existingIndex >= 0) {
+          // If exists, increment quantity
+          const updatedScans = [...prevScans];
+          const currentQuantity = updatedScans[existingIndex].quantity || 0;
+          updatedScans[existingIndex] = {
+            ...updatedScans[existingIndex],
+            quantity: currentQuantity + 1,
+          };
+
+          toast.success(
+            `Incremented quantity for ${updatedScans[existingIndex].ref || updatedScans[existingIndex].gtin}`
+          );
+          return updatedScans;
+        } else {
+          // If new, add with quantity 1
+          const newScan: ScanRecord = {
+            timestamp: new Date().toISOString(),
+            ...parsedData,
+            storageSite: setupInfo.storageSite,
+            location: setupInfo.location,
+            quantity: 1,
+            movementCode: setupInfo.movementCode,
+          };
+
+          // If in addRefMode and no REF, leave it empty for manual entry
+          if (setupInfo.addRefMode && !newScan.ref) {
+            newScan.ref = "";
+          }
+
+          // Check if REF exists in ERP when in stock count mode
+          if (setupInfo.stockCount && newScan.ref && erpRefs.size > 0) {
+            if (!erpRefs.has(newScan.ref)) {
+              toast.error(
+                `Warning: REF "${newScan.ref}" not found in ERP system`
+              );
+              newScan.notInERP = true;
+            }
+          }
+
+          return [...prevScans, newScan];
         }
-      }
+      });
 
-      setScans((prev) => [...prev, newScan]);
       setError(null);
     } catch (err) {
       toast.error((err as Error).message);
@@ -127,8 +206,8 @@ export default function BarcodeScanner() {
   const handleSaveEdit = (updatedScan: ScanRecord) => {
     setScans((prev) =>
       prev.map((scan) =>
-        scan.timestamp === updatedScan.timestamp ? updatedScan : scan,
-      ),
+        scan.timestamp === updatedScan.timestamp ? updatedScan : scan
+      )
     );
     setIsEditModalOpen(false);
     setEditingScan(null);
@@ -183,14 +262,14 @@ export default function BarcodeScanner() {
       // Create a set of existing keys to avoid duplicates
       const existingKeys = new Set(
         zeroCountRecords.map(
-          (record) => `${record.ref}-${record.batchLot}-${record.location}`,
-        ),
+          (record) => `${record.ref}-${record.batchLot}-${record.location}`
+        )
       );
 
       // Filter out any existing scans that match the zero count records
       const filteredScans = newScans.filter(
         (scan) =>
-          !existingKeys.has(`${scan.ref}-${scan.batchLot}-${scan.location}`),
+          !existingKeys.has(`${scan.ref}-${scan.batchLot}-${scan.location}`)
       );
 
       // Combine the filtered scans with the new zero count records
@@ -325,6 +404,32 @@ export default function BarcodeScanner() {
             error={error}
             onAddManual={handleAddManual}
           />
+          {scans.length > 0 && (
+            <div className="mb-4 p-3 bg-blue-50 rounded-md">
+              <h3 className="font-medium text-blue-800">Last Scanned Item</h3>
+              <div className="grid grid-cols-3 gap-4 mt-2">
+                <div>
+                  <span className="text-sm text-gray-500">REF/GTIN:</span>
+                  <span className="ml-2 font-medium">
+                    {scans[scans.length - 1].ref ||
+                      scans[scans.length - 1].gtin}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-sm text-gray-500">Batch/Lot:</span>
+                  <span className="ml-2 font-medium">
+                    {scans[scans.length - 1].batchLot || "N/A"}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-sm text-gray-500">Quantity:</span>
+                  <span className="ml-2 font-medium">
+                    {scans[scans.length - 1].quantity || 0}
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
 
           <ScansGrid
             scans={scans}
