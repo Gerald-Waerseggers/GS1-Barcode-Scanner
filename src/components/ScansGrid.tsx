@@ -76,16 +76,11 @@ const RefCellRenderer: React.FC<RefCellRendererProps> = (props) => {
         if (existingRef) {
           // Replace dots with dashes when setting REF
           props.node.setDataValue("ref", existingRef.replace(/\./g, "-"));
-          // Focus quantity input after auto-filling REF
-          const lastRow = document.querySelector(
-            '.ag-row-last input[type="number"]'
-          );
-          (lastRow as HTMLElement)?.focus();
         }
       }
     }
     lookupRef();
-  }, [data.gtin]);
+  }, [data.gtin, data.ref, props.node]);
 
   useEffect(() => {
     if (!data.ref) {
@@ -108,11 +103,6 @@ const RefCellRenderer: React.FC<RefCellRendererProps> = (props) => {
               const formattedRef = newValue.replace(/\./g, "-");
               gtinRefStore.addMapping(data.gtin, formattedRef);
               props.node.setDataValue("ref", formattedRef);
-              // Find and focus the quantity input
-              const lastRow = document.querySelector(
-                '.ag-row-last input[type="number"]'
-              );
-              (lastRow as HTMLElement)?.focus();
             }
           }
         }}
@@ -143,7 +133,7 @@ const ScansGrid: React.FC<ScansGridProps> = ({
       field: "ref",
       headerName: "REF",
       cellRenderer: RefCellRenderer,
-      cellClass: (params) => {
+      cellClass: (params: { value: string }) => {
         // Add light red background for REFs not in ERP
         if (isStockCount && params.value && !erpRefs.has(params.value)) {
           return "bg-red-100";
@@ -151,7 +141,7 @@ const ScansGrid: React.FC<ScansGridProps> = ({
         return "";
       },
       // Add tooltip for REFs not in ERP
-      tooltipValueGetter: (params) => {
+      tooltipValueGetter: (params: { value: string }) => {
         if (isStockCount && params.value && !erpRefs.has(params.value)) {
           return "This REF is not found in the ERP system";
         }

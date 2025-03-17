@@ -3,7 +3,7 @@ import { getERPStockCount } from "./opfsUtils";
 
 export async function exportStockCountCSV(
   scans: ScanRecord[],
-  setupInfo: ScanSetup
+  setupInfo: ScanSetup,
 ) {
   if (scans.length === 0) return;
 
@@ -22,7 +22,7 @@ export async function exportStockCountCSV(
     erpStock.map((item) => [
       `${item.ref}-${item.lotNumber}-${item.location}`,
       item,
-    ])
+    ]),
   );
 
   // Get unique REFs that were scanned
@@ -64,7 +64,7 @@ export async function exportStockCountCSV(
         !scans.some(
           (scan) =>
             `${scan.ref}-${scan.batchLot}-${scan.location || setupInfo.location}` ===
-            key
+            key,
         )
       ) {
         scanLines.push(
@@ -84,7 +84,7 @@ export async function exportStockCountCSV(
             "UN",
             "1",
             "",
-          ].join(";")
+          ].join(";"),
         );
       }
     }
@@ -94,7 +94,7 @@ export async function exportStockCountCSV(
     `E;;${setupInfo.movementCode || "Stock Count"};1;${setupInfo.storageSite};;;;${setupInfo.storageSite};;;;;;`,
     `L;;;5;${setupInfo.storageSite};;;;;;;;;;`,
     ...scanLines,
-    ""
+    "",
   ].join("\r\n");
 
   // Generate filename

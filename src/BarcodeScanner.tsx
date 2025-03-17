@@ -84,58 +84,33 @@ export default function BarcodeScanner() {
         return;
       }
 
-      // For debugging
-      console.log("Parsed data:", parsedData);
-
       setScans((prevScans) => {
-        // Find existing scan with same REF/GTIN and batch/lot
-        const existingIndex = prevScans.findIndex((scan) => {
-          // Match by REF if available
-          if (parsedData.ref && scan.ref) {
-            const refsMatch = parsedData.ref === scan.ref;
-            const lotsMatch =
-              (parsedData.batchLot || "") === (scan.batchLot || "");
-            const locationsMatch =
-              (setupInfo.location || "") === (scan.location || "");
+        // First, try to find a match by direct comparison
+        let existingIndex = -1;
 
-            console.log(
-              `Comparing REFs: ${parsedData.ref} vs ${scan.ref}, match: ${refsMatch}`
-            );
-            console.log(
-              `Comparing lots: ${parsedData.batchLot || ""} vs ${scan.batchLot || ""}, match: ${lotsMatch}`
-            );
-            console.log(
-              `Comparing locations: ${setupInfo.location || ""} vs ${scan.location || ""}, match: ${locationsMatch}`
-            );
+        // If we have a REF, match by REF + batch/lot + location
+        if (parsedData.ref) {
+          existingIndex = prevScans.findIndex(
+            (scan) =>
+              scan.ref === parsedData.ref &&
+              (scan.batchLot || "") === (parsedData.batchLot || "") &&
+              scan.location === setupInfo.location,
+          );
+        }
 
-            return refsMatch && lotsMatch && locationsMatch;
-          }
+        // If no match by REF or no REF available, try matching by GTIN + batch/lot + location
+        if (existingIndex === -1 && parsedData.gtin) {
+          existingIndex = prevScans.findIndex(
+            (scan) =>
+              scan.gtin === parsedData.gtin &&
+              (scan.batchLot || "") === (parsedData.batchLot || "") &&
+              scan.location === setupInfo.location,
+          );
+        }
 
-          // If no REF, match by GTIN
-          if (parsedData.gtin && scan.gtin) {
-            const gtinsMatch = parsedData.gtin === scan.gtin;
-            const lotsMatch =
-              (parsedData.batchLot || "") === (scan.batchLot || "");
-            const locationsMatch =
-              (setupInfo.location || "") === (scan.location || "");
-
-            console.log(
-              `Comparing GTINs: ${parsedData.gtin} vs ${scan.gtin}, match: ${gtinsMatch}`
-            );
-            console.log(
-              `Comparing lots: ${parsedData.batchLot || ""} vs ${scan.batchLot || ""}, match: ${lotsMatch}`
-            );
-            console.log(
-              `Comparing locations: ${setupInfo.location || ""} vs ${scan.location || ""}, match: ${locationsMatch}`
-            );
-
-            return gtinsMatch && lotsMatch && locationsMatch;
-          }
-
-          return false;
-        });
-
-        console.log("Existing index:", existingIndex);
+        // Debug logging
+        console.log("Parsed data:", parsedData);
+        console.log("Matching index:", existingIndex);
 
         if (existingIndex >= 0) {
           // If exists, increment quantity
@@ -147,7 +122,7 @@ export default function BarcodeScanner() {
           };
 
           toast.success(
-            `Incremented quantity for ${updatedScans[existingIndex].ref || updatedScans[existingIndex].gtin}`
+            `Incremented quantity for ${updatedScans[existingIndex].ref || updatedScans[existingIndex].gtin}`,
           );
           return updatedScans;
         } else {
@@ -170,7 +145,7 @@ export default function BarcodeScanner() {
           if (setupInfo.stockCount && newScan.ref && erpRefs.size > 0) {
             if (!erpRefs.has(newScan.ref)) {
               toast.error(
-                `Warning: REF "${newScan.ref}" not found in ERP system`
+                `Warning: REF "${newScan.ref}" not found in ERP system`,
               );
               newScan.notInERP = true;
             }
@@ -206,8 +181,8 @@ export default function BarcodeScanner() {
   const handleSaveEdit = (updatedScan: ScanRecord) => {
     setScans((prev) =>
       prev.map((scan) =>
-        scan.timestamp === updatedScan.timestamp ? updatedScan : scan
-      )
+        scan.timestamp === updatedScan.timestamp ? updatedScan : scan,
+      ),
     );
     setIsEditModalOpen(false);
     setEditingScan(null);
@@ -262,14 +237,14 @@ export default function BarcodeScanner() {
       // Create a set of existing keys to avoid duplicates
       const existingKeys = new Set(
         zeroCountRecords.map(
-          (record) => `${record.ref}-${record.batchLot}-${record.location}`
-        )
+          (record) => `${record.ref}-${record.batchLot}-${record.location}`,
+        ),
       );
 
       // Filter out any existing scans that match the zero count records
       const filteredScans = newScans.filter(
         (scan) =>
-          !existingKeys.has(`${scan.ref}-${scan.batchLot}-${scan.location}`)
+          !existingKeys.has(`${scan.ref}-${scan.batchLot}-${scan.location}`),
       );
 
       // Combine the filtered scans with the new zero count records

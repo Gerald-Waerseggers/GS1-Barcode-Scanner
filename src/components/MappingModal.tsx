@@ -1,9 +1,9 @@
-import { Button, Dialog, DialogPanel, DialogTitle } from "@headlessui/react";
+import { Button, Dialog, DialogPanel, DialogTitle, Input } from "@headlessui/react";
 import { AgGridReact } from "ag-grid-react";
 import { ColDef, themeQuartz, CellValueChangedEvent } from "ag-grid-community";
 import { Download, Plus, Trash2, Upload } from "lucide-react";
 import { gtinRefStore } from "../stores/gtinRefStore";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { ScanRecord } from "../types";
 
@@ -27,6 +27,8 @@ interface CellRendererProps {
 
 export default function MappingModal({ isOpen, onClose }: MappingModalProps) {
   const [mappings, setMappings] = useState<MappingRow[]>([]);
+  const gridRef = useRef<AgGridReact>(null);
+
 
   const columnDefs: ColDef[] = [
     {
@@ -97,6 +99,13 @@ export default function MappingModal({ isOpen, onClose }: MappingModalProps) {
     }
   };
 
+  const onFilterTextBoxChanged = useCallback(() => {
+    gridRef.current!.api.setGridOption(
+      "quickFilterText",
+      (document.getElementById("filter-text-box") as HTMLInputElement).value,
+    );
+  }, []);
+
   return (
     <Dialog open={isOpen} onClose={onClose} className="relative z-50">
       <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
@@ -149,12 +158,23 @@ export default function MappingModal({ isOpen, onClose }: MappingModalProps) {
               Add Mapping
             </Button>
           </div>
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-sm font-medium">Quick Filter:</span>
+            <Input
+              type="text"
+              id="filter-text-box"
+              placeholder="Filter..."
+              onInput={onFilterTextBoxChanged}
+              className="border border-gray-300 rounded-md p-2 min-w-96"
+            />
+          </div>
 
           <div className="ag-theme-quartz h-96 w-full">
             <AgGridReact
               theme={themeQuartz}
               columnDefs={columnDefs}
               rowData={mappings}
+              ref={gridRef}
               defaultColDef={{
                 flex: 1,
                 resizable: true,

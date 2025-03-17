@@ -16,11 +16,23 @@ const ScanInputForm: React.FC<
     inputRef.current?.focus();
   }, []);
 
+  // Refocus after scan
+  useEffect(() => {
+    if (input === "") {
+      // This will refocus after a scan is processed and input is cleared
+      inputRef.current?.focus();
+    }
+  }, [input]);
+
   const handleScan = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (input.trim()) {
       onScan(input);
       setInput("");
+      // Explicitly refocus after scan
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 10);
     }
   };
 
@@ -52,7 +64,6 @@ const ScanInputForm: React.FC<
       </div>
       {error && <p className="mt-2 text-red-600 text-sm">{error}</p>}
     </form>
-    
   );
 };
 
