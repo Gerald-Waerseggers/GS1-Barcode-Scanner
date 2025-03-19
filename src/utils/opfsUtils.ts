@@ -46,7 +46,10 @@ interface ERPStockCount {
   quantity: number;
 }
 
-export async function loadERPStockCount(file: File, location: string): Promise<ERPStockCount[]> {
+export async function loadERPStockCount(
+  file: File,
+  location: string,
+): Promise<ERPStockCount[]> {
   try {
     const text = await file.text();
     const lines = text.split("\n");
@@ -71,7 +74,8 @@ export async function loadERPStockCount(file: File, location: string): Promise<E
       if (!line) continue; // Skip empty lines
 
       // Format: S;REF;LOT;LOCATION;QUANTITY
-      const [indicator, ref, lotNumber, erpLocation, quantity] = line.split(";");
+      const [indicator, ref, lotNumber, erpLocation, quantity] =
+        line.split(";");
 
       // Skip if not a stock line or missing required data
       if (indicator !== "S" || !ref || !erpLocation) {

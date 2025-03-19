@@ -1,4 +1,10 @@
-import { Button, Dialog, DialogPanel, DialogTitle, Input } from "@headlessui/react";
+import {
+  Button,
+  Dialog,
+  DialogPanel,
+  DialogTitle,
+  Input,
+} from "@headlessui/react";
 import { AgGridReact } from "ag-grid-react";
 import { ColDef, themeQuartz, CellValueChangedEvent } from "ag-grid-community";
 import { Download, Plus, Trash2, Upload } from "lucide-react";
@@ -26,7 +32,7 @@ interface CellRendererProps {
 export default function MappingModal({ isOpen, onClose }: MappingModalProps) {
   const [mappings, setMappings] = useState<MappingRow[]>([]);
   const gridRef = useRef<AgGridReact>(null);
-  
+
   // Generate a unique ID for new rows
   const generateUniqueId = () => {
     return Date.now().toString(36) + Math.random().toString(36).substring(2);
@@ -68,11 +74,13 @@ export default function MappingModal({ isOpen, onClose }: MappingModalProps) {
 
   const loadMappings = async () => {
     const gtinToRef = await gtinRefStore.getAllMappings();
-    setMappings(gtinToRef.map(({ gtin, ref }) => ({ 
-      gtin, 
-      ref,
-      id: generateUniqueId()  // Add unique ID to each mapping
-    })));
+    setMappings(
+      gtinToRef.map(({ gtin, ref }) => ({
+        gtin,
+        ref,
+        id: generateUniqueId(), // Add unique ID to each mapping
+      })),
+    );
   };
 
   useEffect(() => {
@@ -84,28 +92,26 @@ export default function MappingModal({ isOpen, onClose }: MappingModalProps) {
   const onCellValueChanged = (params: CellValueChangedEvent) => {
     const { data, colDef, newValue } = params;
     const field = colDef.field as keyof MappingRow;
-    
+
     // Find the mapping by its ID and update only the changed field
-    setMappings(currentMappings => 
-      currentMappings.map(mapping => 
-        mapping.id === data.id 
-          ? { ...mapping, [field]: newValue } 
-          : mapping
-      )
+    setMappings((currentMappings) =>
+      currentMappings.map((mapping) =>
+        mapping.id === data.id ? { ...mapping, [field]: newValue } : mapping,
+      ),
     );
-    
+
     // Log to confirm correct behavior
     console.log(`Updated ${field} for ID ${data.id} to "${newValue}"`);
   };
 
   const onAddMapping = () => {
-    const newMapping: MappingRow = { 
-      gtin: "", 
-      ref: "", 
-      id: generateUniqueId() 
+    const newMapping: MappingRow = {
+      gtin: "",
+      ref: "",
+      id: generateUniqueId(),
     };
     setMappings([...mappings, newMapping]);
-    
+
     // Optionally scroll to the new row
     setTimeout(() => {
       if (gridRef.current?.api) {
@@ -116,8 +122,8 @@ export default function MappingModal({ isOpen, onClose }: MappingModalProps) {
 
   const onDeleteMapping = (id: string) => {
     // Use the unique ID to identify which mapping to delete
-    setMappings(currentMappings => 
-      currentMappings.filter(mapping => mapping.id !== id)
+    setMappings((currentMappings) =>
+      currentMappings.filter((mapping) => mapping.id !== id),
     );
   };
 
