@@ -3,7 +3,7 @@ import React, { useRef, useEffect } from "react";
 import { AgGridReact } from "ag-grid-react";
 import { ScanRecord } from "../types";
 import { Pencil, Trash2 } from "lucide-react";
-import { ColDef, ITooltipParams, themeQuartz } from "ag-grid-community";
+import { ColDef, themeQuartz } from "ag-grid-community";
 import { Button } from "@headlessui/react";
 import { gtinRefStore } from "../stores/gtinRefStore";
 
@@ -76,6 +76,16 @@ const RefCellRenderer: React.FC<RefCellRendererProps> = (props) => {
         if (existingRef) {
           // Replace dots with dashes when setting REF
           props.node.setDataValue("ref", existingRef.replace(/\./g, "-"));
+
+          // After auto-filling REF, return focus to scan input
+          setTimeout(() => {
+            const scanInput = document.querySelector(
+              'input[placeholder="Scan or type GS1 barcode..."]',
+            );
+            if (scanInput instanceof HTMLElement) {
+              scanInput.focus();
+            }
+          }, 50);
         }
       }
     }
@@ -103,6 +113,30 @@ const RefCellRenderer: React.FC<RefCellRendererProps> = (props) => {
               const formattedRef = newValue.replace(/\./g, "-");
               gtinRefStore.addMapping(data.gtin, formattedRef);
               props.node.setDataValue("ref", formattedRef);
+
+              // Return focus to scan input after filling REF - THIS IS THE KEY CHANGE
+              setTimeout(() => {
+                const scanInput = document.querySelector(
+                  'input[placeholder="Scan or type GS1 barcode..."]',
+                );
+                if (scanInput instanceof HTMLElement) {
+                  scanInput.focus();
+                }
+              }, 50);
+            }
+          }
+        }}
+        // Add onBlur handler as a backup to return focus to scan input
+        onBlur={(e) => {
+          // Only if there's a valid value and user didn't click elsewhere
+          if (e.target.value && !e.relatedTarget) {
+            const scanInput = document.querySelector(
+              'input[placeholder="Scan or type GS1 barcode..."]',
+            );
+            if (scanInput instanceof HTMLElement) {
+              setTimeout(() => {
+                scanInput.focus();
+              }, 50);
             }
           }
         }}

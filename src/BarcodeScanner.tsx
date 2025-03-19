@@ -378,6 +378,7 @@ export default function BarcodeScanner() {
             onScan={handleScan}
             error={error}
             onAddManual={handleAddManual}
+            addRefMode={setupInfo.addRefMode}
           />
           {scans.length > 0 && (
             <div className="mb-4 p-3 bg-blue-50 rounded-md">

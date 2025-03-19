@@ -4,11 +4,16 @@ import React, { useRef, useEffect } from "react";
 interface ScanInputFormProps {
   onScan: (input: string) => void;
   error: string | null;
+  addRefMode: boolean;
+  onAddManual: () => void;
 }
 
-const ScanInputForm: React.FC<
-  ScanInputFormProps & { onAddManual: () => void }
-> = ({ onScan, error, onAddManual }) => {
+const ScanInputForm: React.FC<ScanInputFormProps> = ({
+  onScan,
+  error,
+  addRefMode,
+  onAddManual,
+}) => {
   const [input, setInput] = React.useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -29,10 +34,11 @@ const ScanInputForm: React.FC<
     if (input.trim()) {
       onScan(input);
       setInput("");
-      // Explicitly refocus after scan
-      setTimeout(() => {
-        inputRef.current?.focus();
-      }, 10);
+      if (!addRefMode) {
+        setTimeout(() => {
+          inputRef.current?.focus();
+        }, 10);
+      }
     }
   };
 
