@@ -44,7 +44,7 @@ const SetupForm: React.FC<SetupFormProps> = ({
     if (file) {
       // Delete existing ERP stock count before loading new one
       await deleteERPStockCount();
-      const result = await loadERPStockCount(file);
+      const result = await loadERPStockCount(file, location);
       if (result.length > 0) {
         toast.success(
           `ERP stock count successfully loaded ${result.length} items`,
@@ -153,6 +153,7 @@ const SetupForm: React.FC<SetupFormProps> = ({
                     onChange={handleERPFileUpload}
                     className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md"
                     required
+                    disabled={!location}
                   />
                   <span className="text-xs text-gray-500">
                     Upload ERP stock count file (S;REF;Lot;Location;Quantity)

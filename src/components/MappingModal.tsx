@@ -5,7 +5,6 @@ import { Download, Plus, Trash2, Upload } from "lucide-react";
 import { gtinRefStore } from "../stores/gtinRefStore";
 import { useCallback, useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
-import { ScanRecord } from "../types";
 
 interface MappingModalProps {
   isOpen: boolean;
@@ -15,20 +14,23 @@ interface MappingModalProps {
 interface MappingRow {
   gtin: string;
   ref: string;
+  // Add a unique identifier to track rows reliably
+  id: string;
 }
 
-// Add new interface for REF cell renderer
+// Update the CellRendererProps interface
 interface CellRendererProps {
-  data: ScanRecord;
-  node: {
-    setDataValue: (field: string, value: string) => void;
-  };
+  data: MappingRow;
 }
 
 export default function MappingModal({ isOpen, onClose }: MappingModalProps) {
   const [mappings, setMappings] = useState<MappingRow[]>([]);
   const gridRef = useRef<AgGridReact>(null);
-
+  
+  // Generate a unique ID for new rows
+  const generateUniqueId = () => {
+    return Date.now().toString(36) + Math.random().toString(36).substring(2);
+  };
 
   const columnDefs: ColDef[] = [
     {
@@ -51,7 +53,7 @@ export default function MappingModal({ isOpen, onClose }: MappingModalProps) {
       field: "actions",
       cellRenderer: (params: CellRendererProps) => (
         <Button
-          onClick={() => onDeleteMapping(params.data.gtin)}
+          onClick={() => onDeleteMapping(params.data.id)}
           className="p-1 text-red-600 hover:text-red-800"
           title="Delete"
         >
@@ -59,12 +61,18 @@ export default function MappingModal({ isOpen, onClose }: MappingModalProps) {
         </Button>
       ),
       width: 100,
+      sortable: false,
+      filter: false,
     },
   ];
 
   const loadMappings = async () => {
     const gtinToRef = await gtinRefStore.getAllMappings();
-    setMappings(gtinToRef.map(({ gtin, ref }) => ({ gtin, ref })));
+    setMappings(gtinToRef.map(({ gtin, ref }) => ({ 
+      gtin, 
+      ref,
+      id: generateUniqueId()  // Add unique ID to each mapping
+    })));
   };
 
   useEffect(() => {
@@ -74,25 +82,51 @@ export default function MappingModal({ isOpen, onClose }: MappingModalProps) {
   }, [isOpen]);
 
   const onCellValueChanged = (params: CellValueChangedEvent) => {
-    const updatedMappings = [...mappings];
-    const rowIndex = params.node.rowIndex;
-    const field = params.colDef.field as keyof MappingRow;
-    updatedMappings[rowIndex][field] = params.newValue;
-    setMappings(updatedMappings);
+    const { data, colDef, newValue } = params;
+    const field = colDef.field as keyof MappingRow;
+    
+    // Find the mapping by its ID and update only the changed field
+    setMappings(currentMappings => 
+      currentMappings.map(mapping => 
+        mapping.id === data.id 
+          ? { ...mapping, [field]: newValue } 
+          : mapping
+      )
+    );
+    
+    // Log to confirm correct behavior
+    console.log(`Updated ${field} for ID ${data.id} to "${newValue}"`);
   };
 
   const onAddMapping = () => {
-    setMappings([...mappings, { gtin: "", ref: "" }]);
+    const newMapping: MappingRow = { 
+      gtin: "", 
+      ref: "", 
+      id: generateUniqueId() 
+    };
+    setMappings([...mappings, newMapping]);
+    
+    // Optionally scroll to the new row
+    setTimeout(() => {
+      if (gridRef.current?.api) {
+        gridRef.current.api.ensureIndexVisible(mappings.length);
+      }
+    }, 100);
   };
 
-  const onDeleteMapping = (gtin: string) => {
-    const updatedMappings = mappings.filter((mapping) => mapping.gtin !== gtin);
-    setMappings(updatedMappings);
+  const onDeleteMapping = (id: string) => {
+    // Use the unique ID to identify which mapping to delete
+    setMappings(currentMappings => 
+      currentMappings.filter(mapping => mapping.id !== id)
+    );
   };
 
   const onSave = async () => {
     try {
-      await gtinRefStore.setMappings(mappings);
+      // Strip out the 'id' field when sending data to the store
+      const mappingsForSave = mappings.map(({ gtin, ref }) => ({ gtin, ref }));
+      await gtinRefStore.setMappings(mappingsForSave);
+      toast.success("Mappings saved successfully");
       onClose();
     } catch (error) {
       toast.error("Error saving mappings: " + error);
@@ -128,6 +162,7 @@ export default function MappingModal({ isOpen, onClose }: MappingModalProps) {
                   try {
                     await gtinRefStore.importFromCSV(file);
                     await loadMappings();
+                    toast.success("Mappings imported successfully");
                     // Clear the input value to allow importing the same file again
                     e.target.value = "";
                   } catch (error) {
@@ -180,6 +215,7 @@ export default function MappingModal({ isOpen, onClose }: MappingModalProps) {
                 resizable: true,
               }}
               onCellValueChanged={onCellValueChanged}
+              getRowId={(params) => params.data.id}
             />
           </div>
 

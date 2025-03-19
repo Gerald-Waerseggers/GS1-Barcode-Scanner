@@ -197,7 +197,6 @@ const ScansGrid: React.FC<ScansGridProps> = ({
           }}
           animateRows={true}
           sortingOrder={["desc", "asc", null]}
-          defaultSortModel={[{ colId: "timestamp", sort: "desc" }]}
           suppressCellFocus={true}
           domLayout="autoHeight"
         />

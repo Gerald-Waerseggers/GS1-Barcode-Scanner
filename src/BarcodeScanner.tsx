@@ -22,8 +22,8 @@ import { getERPStockCount } from "./utils/opfsUtils";
 export default function BarcodeScanner() {
   const [isSetup, setIsSetup] = useState(false);
   const [setupInfo, setSetupInfo] = useState<ScanSetup>({
-    stockCount: false,
-    storageSite: "",
+    stockCount: true,
+    storageSite: "MM001",
     movementCode: "",
     location: "",
     addRefMode: true,

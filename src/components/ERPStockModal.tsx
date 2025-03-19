@@ -93,7 +93,6 @@ export default function ERPStockModal({
 
   const handleSelectionChanged = (event: any) => {
     const selected = event.api.getSelectedNodes();
-    console.log("Selected nodes:", selected);
     setSelectedNodes(selected);
   };
 
