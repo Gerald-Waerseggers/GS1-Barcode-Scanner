@@ -1,28 +1,31 @@
 import { Dialog, DialogPanel, DialogTitle, Input } from "@headlessui/react";
 import { AgGridReact } from "ag-grid-react";
-import { ColDef, themeQuartz } from "ag-grid-community";
+import { 
+  ColDef, 
+  themeQuartz,
+  SelectionChangedEvent,
+  RowNode,
+  GridReadyEvent
+} from "ag-grid-community";
 import "ag-grid-enterprise"; // Import enterprise features
 import { Button } from "@headlessui/react";
 import { getERPStockCount } from "../utils/opfsUtils";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { ScanRecord } from "../types"; // Import the ScanRecord type
+
+// Define proper interfaces
+export interface ERPStockRow {
+  ref: string;
+  lotNumber: string;
+  location: string;
+  quantity: number;
+}
 
 interface ERPStockModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSelectZeroCount: (items: ERPStockRow[]) => void;
-  existingScans?: Array<{
-    ref: string;
-    batchLot: string;
-    location: string;
-    quantity: number;
-  }>;
-}
-
-interface ERPStockRow {
-  ref: string;
-  lotNumber: string;
-  location: string;
-  quantity: number;
+  existingScans?: ScanRecord[]; // Use the proper ScanRecord type from your types file
 }
 
 export default function ERPStockModal({
@@ -30,13 +33,13 @@ export default function ERPStockModal({
   onClose,
   onSelectZeroCount,
   existingScans = [],
-}: ERPStockModalProps) {
-  const gridRef = useRef<AgGridReact>(null);
-
+}: ERPStockModalProps): JSX.Element {
+  const gridRef = useRef<AgGridReact<ERPStockRow>>(null);
   const [erpStock, setErpStock] = useState<ERPStockRow[]>([]);
-  const [selectedNodes, setSelectedNodes] = useState<any[]>([]);
+  const [selectedNodes, setSelectedNodes] = useState<RowNode<ERPStockRow>[]>([]);
 
-  const columnDefs: ColDef[] = [
+  // Define column definitions with proper typing
+  const columnDefs: ColDef<ERPStockRow>[] = [
     {
       field: "ref",
       headerName: "REF",
@@ -58,9 +61,12 @@ export default function ERPStockModal({
     },
   ];
 
+  // Load ERP stock data when modal is opened
   useEffect(() => {
     if (isOpen) {
-      loadERPStock();
+      loadERPStock().catch(error => {
+        console.error("Failed to load ERP stock:", error);
+      });
     } else {
       setErpStock([]);
       setSelectedNodes([]);
@@ -69,14 +75,14 @@ export default function ERPStockModal({
 
   // Pre-select zero count items when data is loaded
   useEffect(() => {
-    if (gridRef.current && erpStock.length > 0 && existingScans.length > 0) {
+    if (gridRef.current?.api && erpStock.length > 0 && existingScans.length > 0) {
       const api = gridRef.current.api;
 
       // Create a Set of keys for quick lookup
       const zeroCountKeys = new Set(
         existingScans
           .filter((scan) => scan.quantity === 0)
-          .map((scan) => `${scan.ref}-${scan.batchLot}-${scan.location}`),
+          .map((scan) => `${scan.ref}-${scan.batchLot || ''}-${scan.location || ''}`)
       );
 
       // Select nodes that match existing zero count scans
@@ -91,16 +97,17 @@ export default function ERPStockModal({
     }
   }, [erpStock, existingScans]);
 
-  const handleSelectionChanged = (event: any) => {
+  const handleSelectionChanged = (event: SelectionChangedEvent<ERPStockRow>) => {
     const selected = event.api.getSelectedNodes();
-    setSelectedNodes(selected);
+    setSelectedNodes(selected as unknown as RowNode<ERPStockRow>[]);
   };
 
   const handleConfirm = () => {
     // Get the actual selected items from the nodes
-    const selectedItems = selectedNodes
+    const selectedItems: ERPStockRow[] = selectedNodes
       .filter((node) => !node.group) // Only get leaf nodes (actual items, not groups)
-      .map((node) => node.data);
+      .map((node) => node.data as ERPStockRow)
+      .filter((data): data is ERPStockRow => !!data); // TypeScript filter to remove null/undefined
 
     console.log("Selected items for zero count:", selectedItems);
 
@@ -112,17 +119,32 @@ export default function ERPStockModal({
     }
   };
 
-  const loadERPStock = async () => {
-    const stock = await getERPStockCount();
-    console.log("Loaded ERP stock:", stock);
-    setErpStock(stock);
+  const loadERPStock = async (): Promise<void> => {
+    try {
+      const stock = await getERPStockCount();
+      console.log("Loaded ERP stock:", stock);
+      setErpStock(stock);
+    } catch (error) {
+      console.error("Error loading ERP stock:", error);
+      setErpStock([]);
+      throw error; // Re-throw to allow handling in the effect if needed
+    }
   };
 
   const onFilterTextBoxChanged = useCallback(() => {
-    gridRef.current!.api.setGridOption(
-      "quickFilterText",
-      (document.getElementById("filter-text-box") as HTMLInputElement).value,
-    );
+    const filterInput = document.getElementById("filter-text-box") as HTMLInputElement;
+    if (filterInput && gridRef.current?.api) {
+      gridRef.current.api.setGridOption(
+        "quickFilterText",
+        filterInput.value
+      );
+    }
+  }, []);
+
+  const onGridReady = useCallback((params: GridReadyEvent<ERPStockRow>) => {
+    // Optional: Additional setup when grid is ready
+    // For example, you could save the API reference or auto-size columns
+    params.api.sizeColumnsToFit();
   }, []);
 
   return (
@@ -145,7 +167,7 @@ export default function ERPStockModal({
           </div>
 
           <div className="h-96 w-full mb-4">
-            <AgGridReact
+            <AgGridReact<ERPStockRow>
               theme={themeQuartz}
               columnDefs={columnDefs}
               rowData={erpStock}
@@ -153,10 +175,14 @@ export default function ERPStockModal({
               defaultColDef={{
                 flex: 1,
                 resizable: true,
+                filter: true,
               }}
               groupSelectsChildren={true}
               rowSelection="multiple"
               onSelectionChanged={handleSelectionChanged}
+              onGridReady={onGridReady}
+              suppressRowClickSelection={true}
+              animateRows={true}
             />
           </div>
 
@@ -164,6 +190,7 @@ export default function ERPStockModal({
             <Button
               onClick={onClose}
               className="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-md"
+              type="button"
             >
               Cancel
             </Button>
@@ -171,8 +198,9 @@ export default function ERPStockModal({
               onClick={handleConfirm}
               className="px-4 py-2 bg-blue-500 text-white hover:bg-blue-600 rounded-md"
               disabled={selectedNodes.length === 0}
+              type="button"
             >
-              Add Zero Count
+              Add Zero Count ({selectedNodes.length})
             </Button>
           </div>
         </DialogPanel>

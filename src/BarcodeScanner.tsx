@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from "react";
 import { parseGS1 } from "./utils/gs1Parser";
 import { Trash2, ScanLine, Database, Upload } from "lucide-react";
 import { exportScansToCSV } from "./utils/exportScans";
-
 import EditModal from "./components/EditModal";
 import SetupForm from "./components/SetupForm";
 import ScanInputForm from "./components/ScanInputForm";
@@ -14,7 +13,7 @@ import { Button } from "@headlessui/react";
 import MappingModal from "./components/MappingModal";
 import { exportStockCountCSV } from "./utils/stockCountExport";
 import toast from "react-hot-toast";
-import ERPStockModal from "./components/ERPStockModal";
+import ERPStockModal, { ERPStockRow } from "./components/ERPStockModal";
 import ExportInfoModal from "./components/ExportInfoModal";
 import StockReceiptExportInfoModal from "./components/StockReceiptExportInfoModal";
 import { getERPStockCount } from "./utils/opfsUtils";

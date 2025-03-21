@@ -17,21 +17,14 @@ export async function exportStockCountCSV(
   // Load ERP stock count data
   const erpStock = await getERPStockCount();
 
-  // Create a map for quick lookup
-  const erpStockMap = new Map(
-    erpStock.map((item) => [
-      `${item.ref}-${item.lotNumber}-${item.location}`,
-      item,
-    ]),
-  );
+
 
   // Get unique REFs that were scanned
   const scannedRefs = new Set(scans.map((scan) => scan.ref));
 
   // Process scans and compare with ERP data
   const scanLines = scans.map((scan) => {
-    const key = `${scan.ref}-${scan.batchLot}-${scan.location || setupInfo.location}`;
-    const erpItem = erpStockMap.get(key);
+
 
     const countedQuantity = scan.quantity || 0;
     const zeroStock = countedQuantity === 0 ? "2" : "1";
