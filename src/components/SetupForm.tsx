@@ -38,7 +38,7 @@ const SetupForm: React.FC<SetupFormProps> = ({
   };
 
   const handleERPFileUpload = async (
-    e: React.ChangeEvent<HTMLInputElement>,
+    e: React.ChangeEvent<HTMLInputElement>
   ) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -47,7 +47,7 @@ const SetupForm: React.FC<SetupFormProps> = ({
       const result = await loadERPStockCount(file, location);
       if (result.length > 0) {
         toast.success(
-          `ERP stock count successfully loaded ${result.length} items`,
+          `ERP stock count successfully loaded ${result.length} items`
         );
       } else {
         toast.error("Failed to load ERP stock count");
@@ -80,8 +80,8 @@ const SetupForm: React.FC<SetupFormProps> = ({
                   value={stockCount ? "true" : "false"}
                   onChange={(e) => setStockCount(e.target.value === "true")}
                 >
-                  <option value="false">Stock Receipt</option>
                   <option value="true">Stock Count</option>
+                  <option value="false">Stock Receipt</option>
                 </Select>
               </Field>
               <Field>
