@@ -18,6 +18,7 @@ import ERPStockModal from "./components/ERPStockModal";
 import ExportInfoModal from "./components/ExportInfoModal";
 import StockReceiptExportInfoModal from "./components/StockReceiptExportInfoModal";
 import { getERPStockCount } from "./utils/opfsUtils";
+import { playSound } from "./utils/PlaySound";
 
 export default function BarcodeScanner() {
   const [isSetup, setIsSetup] = useState(false);
@@ -140,6 +141,18 @@ export default function BarcodeScanner() {
           if (setupInfo.addRefMode && !newScan.ref) {
             newScan.ref = "";
           }
+          // Play alert sound for missing REF
+          setTimeout(() => {
+            if(newScan.ref === "") {
+              playSound('alert');
+              // Also show a toast notification
+              toast.error("Missing REF - Please enter a REF for this item");
+            }
+
+          }
+          , 100);
+
+    
 
           // Check if REF exists in ERP when in stock count mode
           if (setupInfo.stockCount && newScan.ref && erpRefs.size > 0) {
@@ -159,6 +172,9 @@ export default function BarcodeScanner() {
     } catch (err) {
       toast.error((err as Error).message);
       setError(err instanceof Error ? err.message : "Invalid barcode format");
+
+      // Play error sound
+      playSound('alert');
     }
   };
 
