@@ -84,7 +84,7 @@ const SetupForm: React.FC<SetupFormProps> = ({
                   <option value="false">Stock Receipt</option>
                 </Select>
               </Field>
-              <Field>
+              <Field className="hidden">
                 <Label className="block text-sm font-medium text-gray-700">
                   Storage Site
                 </Label>

@@ -17,6 +17,7 @@ Before you begin scanning, set up the session as follows:
 3. **Choose the Movement Code**.
 4. **Input the Location**.
 5. **Activate REF Input Mode?**: Enable this option if not all references (REFs) are known beforehand.
+6. **In stock count mode**, you must **select an extraction file** from Sage X3. Click the provided link to download the file using the YSTLOTLOC export template. Ensure the downloaded file starts with "F17..." before uploading it to the scanner.
 
 > **Note**: You can update the session setup at any time during the process by clicking on **“Change Setup”**. Changes will apply to subsequent scanned products.
 
@@ -31,17 +32,26 @@ Before you begin scanning, set up the session as follows:
 3. **Handle the Scanned Data**:
    - A new row will appear in the table.
    - If no REF is associated with the barcode’s GTIN, input it manually.
-   - If a REF is already mapped, the focus will automatically skip the REF column.
-4. **Input Quantity**:
-   - Enter the quantity for products with the same barcode (not just the same REF).
-   - After inputting the quantity, the focus will automatically return to the scanner input field.
-5. Repeat the process for additional products.
+   - If a REF is already mapped, the focus will automatically skip the REF column and go back to the Input field.
+4. Continue scanning the next product. If the scanned product has a matching REF and LOT in the table, its quantity will automatically increment by one.
 
 #### If the Product Has No GS1 Barcode or a Segmented Barcode
 
 - Click on **Manual Entry**.
 - A new screen will appear where you can input the product’s details.
 - Click **Add** to confirm, or **Cancel** (or the cross icon) to discard.
+
+---
+
+### Handling Zero Quantity Items in Stock Count
+
+If a product is missing from the shelf and should be recorded with a quantity of zero:
+
+1. Click **"Select Zero Count Items"**.
+2. Use the filter field to search for the desired product.
+3. Select the product, which will also include all associated REFs.
+4. Click **"Add Zero Count"**.
+5. The selected products will now appear in the table with a quantity of zero.
 
 ---
 
@@ -54,6 +64,7 @@ Before you begin scanning, set up the session as follows:
    - Click **Save Changes** to confirm or **Cancel** (or the cross icon) to discard changes.
 
 2. To delete a row:
+
    - Click on the **red bin icon** at the end of the row you want to delete.
    - A confirmation screen will appear.
    - Click **Delete** to confirm or **Cancel** to discard.
@@ -63,10 +74,21 @@ Before you begin scanning, set up the session as follows:
 ### Finalizing the Scanning Session
 
 1. Review the table to ensure all information is complete and accurate.
+
 2. Click **Export CSV**:
+
    - A CSV file will be generated and saved in your browser’s download folder.
-   - Use this file to update Sage X3 accordingly.
-3. To start a new session:
+   - Use this file to update Sage X3 accordingly with the **YINV or YFTISMR** template.
+
+3. **For Stock Counts:**
+
+   1. After uploading your CSV file in Sage, it is **necessary** to close the count session.
+   2. Navigate to **Stock > Counts > Counts**.
+   3. Locate the stock count document noted in the log file.
+   4. Click **Close** to finalize the count.
+
+4. To start a new session:
+
    - Click **Clear All**.
    - Update the setup if needed.
 
@@ -81,10 +103,12 @@ A mapping between REF and GTIN is automatically created each time you scan a pro
    - Click on **Manage Mappings** to open the GTIN-REF Mappings screen.
 
 2. **Features on the GTIN-REF Mappings Screen**:
+
    - View the GTIN-REF table.
    - Import mappings.
    - Export mappings.
    - Add manual mappings.
+   - Filter mappings to find one easier.
    - Edit or delete mappings.
 
 #### Exporting Mappings
@@ -133,11 +157,12 @@ A mapping between REF and GTIN is automatically created each time you scan a pro
 
 ### Example Workflow
 
-1. **Setup the Session**: Select scan type, storage site, movement code, and location.
-2. **Start Scanning**: Scan barcodes and input necessary details (REF and quantity).
+1. **Setup the Session**: Select scan type, movement code, and location.
+2. **Start Scanning**: Scan barcodes and input necessary details (REF).
 3. **Export Data**: Save the session as a CSV file and use it in Sage X3.
 4. **Manage Mappings**: Regularly update and export mappings to maintain consistency.
 
 ---
 
-If you have questions or need further assistance, contact Gérald Waerseggers at **geraldwae@gmail.com**.
+If you have questions or need further assistance, contact Gérald Waerseggers at **[geraldwae@gmail.com](mailto\:geraldwae@gmail.com)**.
+

@@ -1,10 +1,10 @@
-**Guide d'utilisation du site Web Barcode Scanner**
+**Guide d'utilisation du site web du lecteur de codes-barres**
 
 ---
 
 ### Présentation
 
-Le site Web Barcode Scanner est un outil permettant de gérer efficacement les processus de réception et d'inventaire des stocks. Ce guide fournit une procédure détaillée sur la manière de configurer et d'utiliser efficacement le scanner, notamment les flux de travail de numérisation, la gestion des mappages et l'exportation de données pour Sage X3.
+Le site web du lecteur de codes-barres est un outil puissant pour gérer efficacement les processus de réception et d'inventaire des stocks. Ce guide explique en détail comment configurer et utiliser efficacement le lecteur, notamment les flux de travail de numérisation, la gestion des mappages et l'exportation des données vers Sage X3.
 
 ---
 
@@ -12,56 +12,60 @@ Le site Web Barcode Scanner est un outil permettant de gérer efficacement les p
 
 Avant de commencer la numérisation, configurez la session comme suit :
 
-1. **Sélectionnez le type de numérisation** : choisissez entre **Réception de stock** ou **Inventaire de stock**.
+1. **Sélectionnez le type de numérisation** : choisissez entre **Réception** et **Inventaire**.
 2. **Sélectionnez le site de stockage**.
 3. **Choisissez le code de mouvement**.
 4. **Saisissez l'emplacement**.
-5. **Activer le mode de saisie REF ?** : activez cette option si toutes les références (REF) ne sont pas connues à l'avance.
+5. **Activer le mode de saisie des références ?** : activez cette option si toutes les références (REF) ne sont pas connues au préalable.
+6. **En mode inventaire**, vous devez **sélectionner un fichier d'extraction** depuis Sage X3. Cliquez sur le lien fourni pour télécharger le fichier à l'aide du modèle d'exportation YSTLOTLOC. Assurez-vous que le fichier téléchargé commence par « F17... » avant de le charger dans le scanner.
 
-> **Remarque** : vous pouvez mettre à jour la configuration de la session à tout moment pendant le processus en cliquant sur **« Modifier la configuration »**. Les modifications s'appliqueront aux produits numérisés suivants.
+> **Remarque** : Vous pouvez modifier la configuration de la session à tout moment en cliquant sur **« Modifier la configuration »**. Les modifications s'appliqueront aux produits scannés suivants.
 
 ---
 
 ### Démarrage du processus de numérisation
 
 1. Cliquez sur **Démarrer la numérisation**.
-2. **Préparer la numérisation** :
-
-- Placez le curseur de la souris sur le champ de saisie.
+2. **Préparation de la numérisation** :
+- Positionnez le curseur de la souris sur le champ de saisie.
 - Utilisez le scanner pour scanner un code-barres.
-
-3. **Gérer les données numérisées** :
-
+3. **Gestion des données scannées** :
 - Une nouvelle ligne apparaît dans le tableau.
-- Si aucune REF n'est associée au GTIN du code-barres, saisissez-la manuellement.
-- Si une REF est déjà mappée, le focus ignorera automatiquement la colonne REF.
-
-4. **Saisir la quantité** :
-
-- Saisissez la quantité pour les produits ayant le même code-barres (pas seulement la même REF).
-- Après avoir saisi la quantité, le focus reviendra automatiquement sur le champ de saisie du scanner.
-
-5. Répétez le processus pour les produits supplémentaires.
+- Si aucune référence n'est associée au GTIN du code-barres, saisissez-la manuellement.
+- Si une référence est déjà associée, la colonne RÉF. est automatiquement ignorée et le champ de saisie est réactivé.
+4. Poursuivez la numérisation du produit suivant. Si le produit scanné possède une référence et un lot correspondants dans le tableau, sa quantité est automatiquement incrémentée d'une unité.
 
 #### Si le produit n'a pas de code-barres GS1 ou un code-barres segmenté
 
 - Cliquez sur **Saisie manuelle**.
-- Un nouvel écran apparaîtra dans lequel vous pourrez saisir les détails du produit.
+- Un nouvel écran s'affiche pour vous permettre de saisir les informations du produit.
 - Cliquez sur **Ajouter** pour confirmer ou sur **Annuler** (ou sur l'icône en forme de croix) pour annuler.
 
----
+--
 
-### Modification des informations sur les produits numérisés
+### Gestion des articles à quantité nulle dans l'inventaire
 
-1. Pour modifier un produit numérisé :
+Si un produit est manquant en rayon et doit être enregistré avec une quantité nulle :
 
-- Cliquez sur l'**icône en forme de stylo bleu** à la fin de la ligne que vous souhaitez modifier.
-- Un nouvel écran apparaîtra dans lequel vous pourrez mettre à jour les détails du produit.
+1. Cliquez sur **« Sélectionner les articles à quantité nulle »**.
+2. Utilisez le champ de filtre pour rechercher le produit souhaité.
+3. Sélectionnez le produit, qui inclura également toutes les références associées.
+4. Cliquez sur **« Ajouter une quantité nulle »**.
+5. Les produits sélectionnés apparaîtront désormais dans le tableau avec une quantité nulle.
+
+--
+
+### Modification des informations sur un produit scanné
+
+1. Pour modifier un produit scanné :
+
+- Cliquez sur l'icône en forme de stylo bleu** à la fin de la ligne à modifier.
+- Un nouvel écran apparaîtra pour vous permettre de mettre à jour les informations du produit.
 - Cliquez sur **Enregistrer les modifications** pour confirmer ou sur **Annuler** (ou sur l'icône en forme de croix) pour annuler les modifications.
 
 2. Pour supprimer une ligne :
 
-- Cliquez sur l'**icône en forme de corbeille rouge** à la fin de la ligne que vous souhaitez supprimer.
+- Cliquez sur l'**icône de corbeille rouge** à la fin de la ligne à supprimer.
 - Un écran de confirmation apparaîtra.
 - Cliquez sur **Supprimer** pour confirmer ou sur **Annuler** pour annuler.
 
@@ -69,88 +73,93 @@ Avant de commencer la numérisation, configurez la session comme suit :
 
 ### Finalisation de la session de numérisation
 
-1. Examinez le tableau pour vous assurer que toutes les informations sont complètes et exactes.
+1. Vérifiez que toutes les informations du tableau sont complètes et exactes.
+
 2. Cliquez sur **Exporter CSV** :
 
 - Un fichier CSV sera généré et enregistré dans le dossier de téléchargement de votre navigateur.
-- Utilisez ce fichier pour mettre à jour Sage X3 en conséquence.
+- Utilisez ce fichier pour mettre à jour Sage X3 avec le modèle **YINV ou YFTISMR**.
 
-3. Pour démarrer une nouvelle session :
+3. **Pour les inventaires** :
 
-- Cliquez sur **Tout effacer**.
+1. Après avoir téléchargé votre fichier CSV dans Sage, il est **nécessaire** de fermer la session d'inventaire. 2. Accédez à **Stock > Inventaires > Inventaires**.
+3. Localisez le document d'inventaire enregistré dans le fichier journal.
+4. Cliquez sur **Fermer** pour finaliser l'inventaire.
+
+4. Pour démarrer une nouvelle session :
+
+- Cliquez sur **Effacer tout**.
 - Mettez à jour la configuration si nécessaire.
 
 ---
 
-### Gestion des mappages GTIN-REF
+### Gestion des correspondances GTIN-REF
 
-Un mappage entre REF et GTIN est automatiquement créé chaque fois que vous numérisez un produit et ajoutez un REF. Pour les prochaines numérisations du même produit, le REF se remplira automatiquement après la numérisation.
+Une correspondance entre la référence et le GTIN est automatiquement créée chaque fois que vous scannez un produit et ajoutez une référence. Pour les numérisations ultérieures du même produit, la référence sera automatiquement renseignée après la numérisation.
 
-1. **Accéder aux mappages** :
+1. **Accéder aux correspondances** :
 
-- Cliquez sur **Gérer les mappages** pour ouvrir l'écran Mappages GTIN-REF.
+- Cliquez sur **Gérer les correspondances** pour ouvrir l'écran correspondant.
 
-2. **Fonctionnalités de l'écran Mappages GTIN-REF** :
+2. **Fonctionnalités de l'écran correspondant** :
 
 - Afficher le tableau GTIN-REF.
-- Importer des mappages.
-- Exporter des mappages.
-- Ajouter des mappages manuels.
+- Importer des correspondances.
+- Exporter des correspondances.
+- Ajouter des correspondances manuelles.
+- Filtrer les correspondances pour en trouver une plus facilement.
 - Modifier ou supprimer des mappages.
 
 #### Exporter des mappages
 
-- Pour sauvegarder des mappages ou les transférer vers un autre PC/navigateur :
-
+- Pour sauvegarder des mappages ou les transférer vers un autre ordinateur/navigateur :
 1. Cliquez sur **Exporter le mappage**.
 2. Un fichier CSV sera généré et enregistré dans le dossier de téléchargement de votre navigateur.
 
-#### Importation de mappages
+#### Importer des mappages
 
-- Pour importer des mappages après avoir changé de PC/navigateur :
-
+- Pour importer des mappages après avoir changé d'ordinateur/navigateur :
 1. Cliquez sur **Importer le mappage**.
 2. Sélectionnez le fichier CSV exporté.
 3. **Important** : Assurez-vous que le fichier contient les mappages les plus récents pour éviter les incohérences.
 
-#### Modification et suppression de mappages
+#### Modifier et supprimer des mappages
 
-- **Modifier une valeur** : Double-cliquez sur la valeur que vous souhaitez modifier.
-- **Supprimer une ligne** : Cliquez sur l'**icône de corbeille rouge** à côté de la ligne que vous souhaitez supprimer.
-- **Enregistrer les modifications** : Cliquez toujours sur **Enregistrer** après avoir effectué des modifications pour vous assurer que les données sont mises à jour.
+- **Modifier une valeur** : Double-cliquez sur la valeur à modifier.
+- **Supprimer une ligne** : Cliquez sur l'**icône de corbeille rouge** à côté de la ligne à supprimer.
+- **Enregistrer les modifications** : Cliquez toujours sur **Enregistrer** après avoir effectué des modifications pour garantir la mise à jour des données.
 
 ---
 
 ### Remarques clés
 
-- **Sauvegardez vos mappages** : Exportez régulièrement les mappages pour éviter la perte de données et assurer une transition transparente entre les appareils.
-- **Gérez les entrées manuelles avec précaution** : Utilisez la fonction de saisie manuelle pour les produits sans codes-barres afin de vous assurer qu'ils sont inclus dans les données de numérisation.
-- **Vérifiez les fichiers exportés** : vérifiez le fichier CSV exporté avant de l'utiliser dans Sage X3.
+- **Sauvegardez vos mappages** : Exportez régulièrement les mappages pour éviter toute perte de données et garantir une transition fluide entre les appareils.
+- **Gérez les saisies manuelles avec précaution** : Utilisez la fonction de saisie manuelle pour les produits sans code-barres afin de vous assurer qu'ils sont inclus dans les données de numérisation.
+- **Vérifiez les fichiers exportés** : Vérifiez le fichier CSV exporté avant de l'utiliser dans Sage X3.
 
 ---
 
 ### Dépannage
 
-#### Le scanner ne détecte pas de code-barres :
+#### Le lecteur ne détecte pas de code-barres :
 
-- Assurez-vous que le scanner est connecté et fonctionne correctement.
+- Assurez-vous que le lecteur est connecté et qu'il fonctionne correctement.
 - Vérifiez que le code-barres n'est pas endommagé ou mal imprimé.
 - Ajustez les conditions d'éclairage pour une meilleure précision de numérisation.
 
 #### Les mappages ne se synchronisent pas :
 
-- Vérifiez si le fichier de mappage correct est importé.
-- Assurez-vous que le fichier de mappage est la dernière version.
+- Vérifiez que le fichier de mappage correct est importé.
+- Assurez-vous que la version du fichier de mappage est la plus récente.
 
 ---
 
-### Exemple de flux de travail
+### Exemple de workflow
 
-1. **Configurer la session** : sélectionnez le type de numérisation, le site de stockage, le code de mouvement et l'emplacement.
-2. **Démarrer la numérisation** : numérisez les codes-barres et saisissez les détails nécessaires (REF et quantité).
-3. **Exporter les données** : enregistrez la session sous forme de fichier CSV et utilisez-la dans Sage X3.
-4. **Gérer les mappages** : mettez à jour et exportez régulièrement les mappages pour maintenir la cohérence.
+1. **Configurer la session** : Sélectionnez le type de numérisation, le code de mouvement et l'emplacement. 2. **Démarrer la numérisation** : Scannez les codes-barres et saisissez les informations nécessaires (REF).
+3. **Exporter les données** : Enregistrez la session au format CSV et utilisez-la dans Sage X3.
+4. **Gérer les mappages** : Mettez à jour et exportez régulièrement les mappages pour garantir la cohérence.
 
----
+--
 
-Si vous avez des questions ou besoin d'aide supplémentaire, contactez Gérald Waerseggers à **geraldwae@gmail.com**.
+Pour toute question ou assistance supplémentaire, contactez Gérald Waerseggers à l'adresse **[geraldwae@gmail.com](mailto\:geraldwae@gmail.com)**.
