@@ -143,16 +143,12 @@ export default function BarcodeScanner() {
           }
           // Play alert sound for missing REF
           setTimeout(() => {
-            if(newScan.ref === "") {
-              playSound('alert');
+            if (newScan.ref === "") {
+              playSound("alert");
               // Also show a toast notification
               toast.error("Missing REF - Please enter a REF for this item");
             }
-
-          }
-          , 100);
-
-    
+          }, 100);
 
           // Check if REF exists in ERP when in stock count mode
           if (setupInfo.stockCount && newScan.ref && erpRefs.size > 0) {
@@ -174,7 +170,7 @@ export default function BarcodeScanner() {
       setError(err instanceof Error ? err.message : "Invalid barcode format");
 
       // Play error sound
-      playSound('alert');
+      playSound("alert");
     }
   };
 

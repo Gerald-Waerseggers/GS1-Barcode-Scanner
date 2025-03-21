@@ -80,7 +80,7 @@ const RefCellRenderer: React.FC<RefCellRendererProps> = (props) => {
           // After auto-filling REF, return focus to scan input
           setTimeout(() => {
             const scanInput = document.querySelector(
-              'input[placeholder="Scan or type GS1 barcode..."]'
+              'input[placeholder="Scan or type GS1 barcode..."]',
             );
             if (scanInput instanceof HTMLElement) {
               scanInput.focus();
@@ -117,7 +117,7 @@ const RefCellRenderer: React.FC<RefCellRendererProps> = (props) => {
               // Return focus to scan input after filling REF - THIS IS THE KEY CHANGE
               setTimeout(() => {
                 const scanInput = document.querySelector(
-                  'input[placeholder="Scan or type GS1 barcode..."]'
+                  'input[placeholder="Scan or type GS1 barcode..."]',
                 );
                 if (scanInput instanceof HTMLElement) {
                   scanInput.focus();
@@ -131,7 +131,7 @@ const RefCellRenderer: React.FC<RefCellRendererProps> = (props) => {
           // Only if there's a valid value and user didn't click elsewhere
           if (e.target.value && !e.relatedTarget) {
             const scanInput = document.querySelector(
-              'input[placeholder="Scan or type GS1 barcode..."]'
+              'input[placeholder="Scan or type GS1 barcode..."]',
             );
             if (scanInput instanceof HTMLElement) {
               setTimeout(() => {
@@ -197,11 +197,13 @@ const ScansGrid: React.FC<ScansGridProps> = ({
         const date = new Date();
         if (params.value && new Date(params.value) < new Date()) {
           return "bg-red-100";
-        }
-        else if(params.value && new Date(params.value) <  new Date(date.setMonth(date.getMonth() + 6 ))) {
+        } else if (
+          params.value &&
+          new Date(params.value) < new Date(date.setMonth(date.getMonth() + 6))
+        ) {
           return "bg-orange-100";
         }
-        return "";  
+        return "";
       },
       // Add tooltip for REFs not in ERP
       tooltipValueGetter: (params: { value: string }) => {
@@ -209,8 +211,10 @@ const ScansGrid: React.FC<ScansGridProps> = ({
 
         if (params.value && new Date(params.value) < new Date()) {
           return "This product has expired";
-        }
-        else if(params.value && new Date(params.value) < new Date(date.setMonth(date.getMonth() + 6 ))) {
+        } else if (
+          params.value &&
+          new Date(params.value) < new Date(date.setMonth(date.getMonth() + 6))
+        ) {
           return "This product will expire soon";
         }
         return "";
