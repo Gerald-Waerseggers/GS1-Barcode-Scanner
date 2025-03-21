@@ -12,7 +12,7 @@ import AddModal from "./components/AddModal";
 import DeleteModal from "./components/DeleteModal";
 import { Button } from "@headlessui/react";
 import MappingModal from "./components/MappingModal";
-import { exportStockCountCSV } from "./utils/stockCountExport";
+import { exportStockComparisonReport, exportStockCountCSV } from "./utils/stockCountExport";
 import toast from "react-hot-toast";
 import ERPStockModal from "./components/ERPStockModal";
 import ExportInfoModal from "./components/ExportInfoModal";
@@ -95,7 +95,7 @@ export default function BarcodeScanner() {
             (scan) =>
               scan.ref === parsedData.ref &&
               (scan.batchLot || "") === (parsedData.batchLot || "") &&
-              scan.location === setupInfo.location,
+              scan.location === setupInfo.location
           );
         }
 
@@ -105,7 +105,7 @@ export default function BarcodeScanner() {
             (scan) =>
               scan.gtin === parsedData.gtin &&
               (scan.batchLot || "") === (parsedData.batchLot || "") &&
-              scan.location === setupInfo.location,
+              scan.location === setupInfo.location
           );
         }
 
@@ -123,7 +123,7 @@ export default function BarcodeScanner() {
           };
 
           toast.success(
-            `Incremented quantity for ${updatedScans[existingIndex].ref || updatedScans[existingIndex].gtin}`,
+            `Incremented quantity for ${updatedScans[existingIndex].ref || updatedScans[existingIndex].gtin}`
           );
           return updatedScans;
         } else {
@@ -154,7 +154,7 @@ export default function BarcodeScanner() {
           if (setupInfo.stockCount && newScan.ref && erpRefs.size > 0) {
             if (!erpRefs.has(newScan.ref)) {
               toast.error(
-                `Warning: REF "${newScan.ref}" not found in ERP system`,
+                `Warning: REF "${newScan.ref}" not found in ERP system`
               );
               newScan.notInERP = true;
             }
@@ -193,8 +193,8 @@ export default function BarcodeScanner() {
   const handleSaveEdit = (updatedScan: ScanRecord) => {
     setScans((prev) =>
       prev.map((scan) =>
-        scan.timestamp === updatedScan.timestamp ? updatedScan : scan,
-      ),
+        scan.timestamp === updatedScan.timestamp ? updatedScan : scan
+      )
     );
     setIsEditModalOpen(false);
     setEditingScan(null);
@@ -249,14 +249,14 @@ export default function BarcodeScanner() {
       // Create a set of existing keys to avoid duplicates
       const existingKeys = new Set(
         zeroCountRecords.map(
-          (record) => `${record.ref}-${record.batchLot}-${record.location}`,
-        ),
+          (record) => `${record.ref}-${record.batchLot}-${record.location}`
+        )
       );
 
       // Filter out any existing scans that match the zero count records
       const filteredScans = newScans.filter(
         (scan) =>
-          !existingKeys.has(`${scan.ref}-${scan.batchLot}-${scan.location}`),
+          !existingKeys.has(`${scan.ref}-${scan.batchLot}-${scan.location}`)
       );
 
       // Combine the filtered scans with the new zero count records
@@ -367,6 +367,16 @@ export default function BarcodeScanner() {
               >
                 Select Zero Count Items
               </Button>
+              {setupInfo.stockCount && (
+                <Button
+                  onClick={() => exportStockComparisonReport(scans, setupInfo)}
+                  disabled={scans.length === 0}
+                  className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Database className="w-4 h-4" />
+                  Export Comparison Report
+                </Button>
+              )}
               <Button
                 onClick={handleExport}
                 disabled={scans.length === 0}

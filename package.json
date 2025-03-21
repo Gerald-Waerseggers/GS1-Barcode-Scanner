@@ -16,6 +16,7 @@
     "ag-grid-community": "^32.3.0",
     "ag-grid-enterprise": "^32.3.0",
     "ag-grid-react": "^32.3.0",
+    "exceljs": "^4.4.0",
     "gs1-barcode-parser-mod": "^1.0.7",
     "lucide-react": "^0.344.0",
     "react": "^18.3.1",
