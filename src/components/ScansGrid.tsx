@@ -159,6 +159,7 @@ const ScansGrid: React.FC<ScansGridProps> = ({
       headerName: "Time",
       valueFormatter: (params: { value: Date }) =>
         new Date(params.value).toLocaleTimeString(),
+      sort: "desc",
     },
     { field: "storageSite", headerName: "Storage Site" },
     { field: "gtin", headerName: "GTIN" },
@@ -188,6 +189,7 @@ const ScansGrid: React.FC<ScansGridProps> = ({
       headerName: "Quantity",
       type: "numericColumn",
       cellRenderer: QuantityCellRenderer,
+      editable: true,
     },
     {
       field: "expirationDate",
