@@ -123,10 +123,16 @@ export default function BarcodeScanner() {
 
           // Check if the existing item is expired
           const existingScan = updatedScans[existingIndex];
+
+          const expiryThresholdMonths = setupInfo.expiredTime || 6; // Use the configured threshold
+          // Check if item is expired
+          const date = new Date();
+
           const isExpired = existingScan.expirationDate
-            ? new Date(existingScan.expirationDate) < new Date()
+            ? new Date(existingScan.expirationDate) < new Date(date.setMonth(date.getMonth() + expiryThresholdMonths))
             : false;
 
+          
           toast.success(
             `Incremented quantity for ${existingScan.ref || existingScan.gtin}`
           );
@@ -157,10 +163,12 @@ export default function BarcodeScanner() {
           if (setupInfo.addRefMode && !newScan.ref) {
             newScan.ref = "";
           }
-
+          const expiryThresholdMonths = setupInfo.expiredTime || 6; // Use the configured threshold
           // Check if item is expired
+          const date = new Date();
+
           const isExpired = newScan.expirationDate
-            ? new Date(newScan.expirationDate) < new Date()
+            ? new Date(newScan.expirationDate) < new Date(date.setMonth(date.getMonth() + expiryThresholdMonths))
             : false;
 
           // Play alert sound for missing REF
@@ -341,12 +349,6 @@ export default function BarcodeScanner() {
           <div className="flex items-center justify-between mb-4 p-3 bg-gray-50 rounded-md">
             <div className="flex gap-4">
               <div>
-                <span className="text-sm text-gray-500">Storage Site:</span>
-                <span className="ml-2 font-medium">
-                  {setupInfo.storageSite}
-                </span>
-              </div>
-              <div>
                 <span className="text-sm text-gray-500">Movement Code:</span>
                 <span className="ml-2 font-medium">
                   {setupInfo.movementCode}
@@ -362,6 +364,11 @@ export default function BarcodeScanner() {
                   {setupInfo.addRefMode ? "Enabled" : "Disabled"}
                 </span>
               </div>
+              <div>
+                <span className="text-sm text-gray-500">Expiration:</span>
+                <span className="ml-2 font-medium">{setupInfo.expiredTime} months</span>
+              </div>
+              
             </div>
             <div className="flex gap-2">
               <Button
@@ -455,6 +462,7 @@ export default function BarcodeScanner() {
             onDelete={handleDelete}
             erpRefs={erpRefs}
             isStockCount={setupInfo.stockCount}
+            expiredTime={setupInfo.expiredTime}
           />
         </div>
       </div>

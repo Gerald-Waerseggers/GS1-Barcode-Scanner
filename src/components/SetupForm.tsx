@@ -25,6 +25,7 @@ const SetupForm: React.FC<SetupFormProps> = ({
   const [location, setLocation] = useState(initialValues.location);
   const [stockCount, setStockCount] = useState(initialValues.stockCount);
   const [addRefMode, setAddRefMode] = useState(initialValues.addRefMode);
+  const [expiredTime, setExpiredTime] = useState(initialValues.expiredTime ?? 6);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,6 +35,7 @@ const SetupForm: React.FC<SetupFormProps> = ({
       addRefMode,
       movementCode,
       location,
+      expiredTime,
     });
   };
 
@@ -133,6 +135,24 @@ const SetupForm: React.FC<SetupFormProps> = ({
                   />
                   <span className="text-gray-700">Enable REF input mode</span>
                 </Label>
+              </Field>
+              <Field>
+                <Label className="block text-sm font-medium text-gray-700">
+                  Expiry Warning Time (months)
+                </Label>
+                <Input
+                  placeholder="Months before expiry warning"
+                  type="number"
+                  min="0"
+                  max="48"
+                  value={expiredTime}
+                  onChange={(e) => setExpiredTime(parseInt(e.target.value, 10))}
+                  className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md"
+                  required
+                />
+                <span className="text-xs text-gray-500">
+                  Products expiring within this many months will show a warning
+                </span>
               </Field>
 
               {stockCount && (

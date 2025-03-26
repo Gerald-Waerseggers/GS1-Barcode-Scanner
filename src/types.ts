@@ -4,6 +4,7 @@ export interface ScanSetup {
   movementCode: string;
   location: string;
   addRefMode: boolean;
+  expiredTime: number;
 }
 
 export interface ScanRecord {

@@ -13,6 +13,7 @@ interface ScansGridProps {
   onDelete: (scan: ScanRecord) => void;
   erpRefs: Set<string>;
   isStockCount?: boolean;
+  expiredTime?: number;
 }
 
 // Define the ActionCellRenderer component.
@@ -152,6 +153,7 @@ const ScansGrid: React.FC<ScansGridProps> = ({
   onDelete,
   erpRefs = new Set(),
   isStockCount = false,
+  expiredTime,
 }) => {
   const columnDefs = [
     {
@@ -194,30 +196,33 @@ const ScansGrid: React.FC<ScansGridProps> = ({
     {
       field: "expirationDate",
       headerName: "Expiration Date",
-      cellClass: (params: { value: string }) => {
-        // Add light red background for REFs not in ERP
+      cellClass: (params: { value: string; data: ScanRecord }) => {
+        // Add light red background for expired items
         const date = new Date();
+        const expiryThresholdMonths = expiredTime || 6; // Use the configured threshold
+        
         if (params.value && new Date(params.value) < new Date()) {
           return "bg-red-100";
         } else if (
           params.value &&
-          new Date(params.value) < new Date(date.setMonth(date.getMonth() + 6))
+          new Date(params.value) < new Date(date.setMonth(date.getMonth() + expiryThresholdMonths))
         ) {
           return "bg-orange-100";
         }
         return "";
       },
-      // Add tooltip for REFs not in ERP
-      tooltipValueGetter: (params: { value: string }) => {
+      // Update tooltip as well
+      tooltipValueGetter: (params: { value: string; data: ScanRecord }) => {
         const date = new Date();
-
+        const expiryThresholdMonths = expiredTime || 6; // Use the configured threshold
+    
         if (params.value && new Date(params.value) < new Date()) {
           return "This product has expired";
         } else if (
           params.value &&
-          new Date(params.value) < new Date(date.setMonth(date.getMonth() + 6))
+          new Date(params.value) < new Date(date.setMonth(date.getMonth() + expiryThresholdMonths))
         ) {
-          return "This product will expire soon";
+          return `This product will expire within ${expiryThresholdMonths} months`;
         }
         return "";
       },
