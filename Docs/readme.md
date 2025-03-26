@@ -164,5 +164,4 @@ A mapping between REF and GTIN is automatically created each time you scan a pro
 
 ---
 
-If you have questions or need further assistance, contact Gérald Waerseggers at **[geraldwae@gmail.com](mailto\:geraldwae@gmail.com)**.
-
+If you have questions or need further assistance, contact Gérald Waerseggers at **[geraldwae@gmail.com](mailto:geraldwae@gmail.com)**.

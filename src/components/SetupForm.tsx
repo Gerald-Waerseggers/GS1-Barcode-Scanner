@@ -25,7 +25,9 @@ const SetupForm: React.FC<SetupFormProps> = ({
   const [location, setLocation] = useState(initialValues.location);
   const [stockCount, setStockCount] = useState(initialValues.stockCount);
   const [addRefMode, setAddRefMode] = useState(initialValues.addRefMode);
-  const [expiredTime, setExpiredTime] = useState(initialValues.expiredTime ?? 6);
+  const [expiredTime, setExpiredTime] = useState(
+    initialValues.expiredTime ?? 6,
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

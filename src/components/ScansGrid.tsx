@@ -200,12 +200,13 @@ const ScansGrid: React.FC<ScansGridProps> = ({
         // Add light red background for expired items
         const date = new Date();
         const expiryThresholdMonths = expiredTime || 6; // Use the configured threshold
-        
+
         if (params.value && new Date(params.value) < new Date()) {
           return "bg-red-100";
         } else if (
           params.value &&
-          new Date(params.value) < new Date(date.setMonth(date.getMonth() + expiryThresholdMonths))
+          new Date(params.value) <
+            new Date(date.setMonth(date.getMonth() + expiryThresholdMonths))
         ) {
           return "bg-orange-100";
         }
@@ -215,12 +216,13 @@ const ScansGrid: React.FC<ScansGridProps> = ({
       tooltipValueGetter: (params: { value: string; data: ScanRecord }) => {
         const date = new Date();
         const expiryThresholdMonths = expiredTime || 6; // Use the configured threshold
-    
+
         if (params.value && new Date(params.value) < new Date()) {
           return "This product has expired";
         } else if (
           params.value &&
-          new Date(params.value) < new Date(date.setMonth(date.getMonth() + expiryThresholdMonths))
+          new Date(params.value) <
+            new Date(date.setMonth(date.getMonth() + expiryThresholdMonths))
         ) {
           return `This product will expire within ${expiryThresholdMonths} months`;
         }
@@ -259,7 +261,6 @@ const ScansGrid: React.FC<ScansGridProps> = ({
           theme={themeQuartz}
           loadThemeGoogleFonts={true}
           rowData={scans}
-          
           columnDefs={columnDefs as ColDef<ScanRecord>[]}
           defaultColDef={defaultColDef}
           autoSizeStrategy={autoSizeStrategy}

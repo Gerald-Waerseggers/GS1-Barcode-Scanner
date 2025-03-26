@@ -94,7 +94,7 @@ export default function BarcodeScanner() {
             (scan) =>
               scan.ref === parsedData.ref &&
               (scan.batchLot || "") === (parsedData.batchLot || "") &&
-              scan.location === setupInfo.location
+              scan.location === setupInfo.location,
           );
         }
 
@@ -104,7 +104,7 @@ export default function BarcodeScanner() {
             (scan) =>
               scan.gtin === parsedData.gtin &&
               (scan.batchLot || "") === (parsedData.batchLot || "") &&
-              scan.location === setupInfo.location
+              scan.location === setupInfo.location,
           );
         }
 
@@ -129,19 +129,19 @@ export default function BarcodeScanner() {
           const date = new Date();
 
           const isExpired = existingScan.expirationDate
-            ? new Date(existingScan.expirationDate) < new Date(date.setMonth(date.getMonth() + expiryThresholdMonths))
+            ? new Date(existingScan.expirationDate) <
+              new Date(date.setMonth(date.getMonth() + expiryThresholdMonths))
             : false;
 
-          
           toast.success(
-            `Incremented quantity for ${existingScan.ref || existingScan.gtin}`
+            `Incremented quantity for ${existingScan.ref || existingScan.gtin}`,
           );
 
           // Play appropriate sound based on expiration status
           if (isExpired) {
             playSound("expired");
             toast.error(
-              `Warning: Item is expired (${existingScan.expirationDate})`
+              `Warning: Item is expired (${existingScan.expirationDate})`,
             );
           } else {
             playSound("success");
@@ -168,7 +168,8 @@ export default function BarcodeScanner() {
           const date = new Date();
 
           const isExpired = newScan.expirationDate
-            ? new Date(newScan.expirationDate) < new Date(date.setMonth(date.getMonth() + expiryThresholdMonths))
+            ? new Date(newScan.expirationDate) <
+              new Date(date.setMonth(date.getMonth() + expiryThresholdMonths))
             : false;
 
           // Play alert sound for missing REF
@@ -180,7 +181,7 @@ export default function BarcodeScanner() {
             } else if (isExpired) {
               playSound("expired");
               toast.error(
-                `Warning: Item is expired (${newScan.expirationDate})`
+                `Warning: Item is expired (${newScan.expirationDate})`,
               );
             } else {
               playSound("success");
@@ -192,7 +193,7 @@ export default function BarcodeScanner() {
           if (setupInfo.stockCount && newScan.ref && erpRefs.size > 0) {
             if (!erpRefs.has(newScan.ref)) {
               toast.error(
-                `Warning: REF "${newScan.ref}" not found in ERP system`
+                `Warning: REF "${newScan.ref}" not found in ERP system`,
               );
               newScan.notInERP = true;
             }
@@ -231,8 +232,8 @@ export default function BarcodeScanner() {
   const handleSaveEdit = (updatedScan: ScanRecord) => {
     setScans((prev) =>
       prev.map((scan) =>
-        scan.timestamp === updatedScan.timestamp ? updatedScan : scan
-      )
+        scan.timestamp === updatedScan.timestamp ? updatedScan : scan,
+      ),
     );
     setIsEditModalOpen(false);
     setEditingScan(null);
@@ -287,14 +288,14 @@ export default function BarcodeScanner() {
       // Create a set of existing keys to avoid duplicates
       const existingKeys = new Set(
         zeroCountRecords.map(
-          (record) => `${record.ref}-${record.batchLot}-${record.location}`
-        )
+          (record) => `${record.ref}-${record.batchLot}-${record.location}`,
+        ),
       );
 
       // Filter out any existing scans that match the zero count records
       const filteredScans = newScans.filter(
         (scan) =>
-          !existingKeys.has(`${scan.ref}-${scan.batchLot}-${scan.location}`)
+          !existingKeys.has(`${scan.ref}-${scan.batchLot}-${scan.location}`),
       );
 
       // Combine the filtered scans with the new zero count records
@@ -366,9 +367,10 @@ export default function BarcodeScanner() {
               </div>
               <div>
                 <span className="text-sm text-gray-500">Expiration:</span>
-                <span className="ml-2 font-medium">{setupInfo.expiredTime} months</span>
+                <span className="ml-2 font-medium">
+                  {setupInfo.expiredTime} months
+                </span>
               </div>
-              
             </div>
             <div className="flex gap-2">
               <Button

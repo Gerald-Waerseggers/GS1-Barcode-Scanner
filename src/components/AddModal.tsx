@@ -64,7 +64,6 @@ const AddModal: React.FC<AddModalProps> = ({
 
           <form onSubmit={handleSubmit}>
             <div className="space-y-4">
-              
               <div>
                 <label className="block text-sm font-medium text-gray-700">
                   REF

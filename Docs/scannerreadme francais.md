@@ -27,12 +27,16 @@ Avant de commencer la numérisation, configurez la session comme suit :
 
 1. Cliquez sur **Démarrer la numérisation**.
 2. **Préparation de la numérisation** :
+
 - Positionnez le curseur de la souris sur le champ de saisie.
 - Utilisez le scanner pour scanner un code-barres.
+
 3. **Gestion des données scannées** :
+
 - Une nouvelle ligne apparaît dans le tableau.
 - Si aucune référence n'est associée au GTIN du code-barres, saisissez-la manuellement.
 - Si une référence est déjà associée, la colonne RÉF. est automatiquement ignorée et le champ de saisie est réactivé.
+
 4. Poursuivez la numérisation du produit suivant. Si le produit scanné possède une référence et un lot correspondants dans le tableau, sa quantité est automatiquement incrémentée d'une unité.
 
 #### Si le produit n'a pas de code-barres GS1 ou un code-barres segmenté
@@ -59,7 +63,7 @@ Si un produit est manquant en rayon et doit être enregistré avec une quantité
 
 1. Pour modifier un produit scanné :
 
-- Cliquez sur l'icône en forme de stylo bleu** à la fin de la ligne à modifier.
+- Cliquez sur l'icône en forme de stylo bleu\*\* à la fin de la ligne à modifier.
 - Un nouvel écran apparaîtra pour vous permettre de mettre à jour les informations du produit.
 - Cliquez sur **Enregistrer les modifications** pour confirmer ou sur **Annuler** (ou sur l'icône en forme de croix) pour annuler les modifications.
 
@@ -83,10 +87,10 @@ Si un produit est manquant en rayon et doit être enregistré avec une quantité
 3. **Pour les inventaires** :
 
 1. Après avoir téléchargé votre fichier CSV dans Sage, il est **nécessaire** de fermer la session d'inventaire. 2. Accédez à **Stock > Inventaires > Inventaires**.
-3. Localisez le document d'inventaire enregistré dans le fichier journal.
-4. Cliquez sur **Fermer** pour finaliser l'inventaire.
+1. Localisez le document d'inventaire enregistré dans le fichier journal.
+1. Cliquez sur **Fermer** pour finaliser l'inventaire.
 
-4. Pour démarrer une nouvelle session :
+1. Pour démarrer une nouvelle session :
 
 - Cliquez sur **Effacer tout**.
 - Mettez à jour la configuration si nécessaire.
@@ -113,12 +117,14 @@ Une correspondance entre la référence et le GTIN est automatiquement créée c
 #### Exporter des mappages
 
 - Pour sauvegarder des mappages ou les transférer vers un autre ordinateur/navigateur :
+
 1. Cliquez sur **Exporter le mappage**.
 2. Un fichier CSV sera généré et enregistré dans le dossier de téléchargement de votre navigateur.
 
 #### Importer des mappages
 
 - Pour importer des mappages après avoir changé d'ordinateur/navigateur :
+
 1. Cliquez sur **Importer le mappage**.
 2. Sélectionnez le fichier CSV exporté.
 3. **Important** : Assurez-vous que le fichier contient les mappages les plus récents pour éviter les incohérences.
@@ -157,9 +163,9 @@ Une correspondance entre la référence et le GTIN est automatiquement créée c
 ### Exemple de workflow
 
 1. **Configurer la session** : Sélectionnez le type de numérisation, le code de mouvement et l'emplacement. 2. **Démarrer la numérisation** : Scannez les codes-barres et saisissez les informations nécessaires (REF).
-3. **Exporter les données** : Enregistrez la session au format CSV et utilisez-la dans Sage X3.
-4. **Gérer les mappages** : Mettez à jour et exportez régulièrement les mappages pour garantir la cohérence.
+2. **Exporter les données** : Enregistrez la session au format CSV et utilisez-la dans Sage X3.
+3. **Gérer les mappages** : Mettez à jour et exportez régulièrement les mappages pour garantir la cohérence.
 
 --
 
-Pour toute question ou assistance supplémentaire, contactez Gérald Waerseggers à l'adresse **[geraldwae@gmail.com](mailto\:geraldwae@gmail.com)**.
+Pour toute question ou assistance supplémentaire, contactez Gérald Waerseggers à l'adresse **[geraldwae@gmail.com](mailto:geraldwae@gmail.com)**.

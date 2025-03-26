@@ -12,7 +12,6 @@ interface ParsedGS1Data {
 
 export function parseGS1(barcode: string): ParsedGS1Data {
   try {
-
     // Add symbology identifier if missing
     if (!barcode.startsWith("]") && barcode.startsWith("C1")) {
       // If it has ] but not complete ]C1 prefix, add the C1 part
@@ -21,15 +20,10 @@ export function parseGS1(barcode: string): ParsedGS1Data {
       // Add ]C1 prefix if missing (GS1-128 symbology identifier)
       barcode = "]C1" + barcode;
     }
-    
-    
-
-    
 
     barcode = barcode.replace(/§/g, "-");
     // Replace parentheses with nothing
     barcode = barcode.replace(/\(/g, "").replace(/\)/g, "");
-
 
     // Use the existing parser to get detailed parsing
     const parsed = parseBarcode(barcode);

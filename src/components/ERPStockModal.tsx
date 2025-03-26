@@ -1,11 +1,11 @@
 import { Dialog, DialogPanel, DialogTitle, Input } from "@headlessui/react";
 import { AgGridReact } from "ag-grid-react";
-import { 
-  ColDef, 
+import {
+  ColDef,
   themeQuartz,
   SelectionChangedEvent,
   RowNode,
-  GridReadyEvent
+  GridReadyEvent,
 } from "ag-grid-community";
 import "ag-grid-enterprise"; // Import enterprise features
 import { Button } from "@headlessui/react";
@@ -36,7 +36,9 @@ export default function ERPStockModal({
 }: ERPStockModalProps): JSX.Element {
   const gridRef = useRef<AgGridReact<ERPStockRow>>(null);
   const [erpStock, setErpStock] = useState<ERPStockRow[]>([]);
-  const [selectedNodes, setSelectedNodes] = useState<RowNode<ERPStockRow>[]>([]);
+  const [selectedNodes, setSelectedNodes] = useState<RowNode<ERPStockRow>[]>(
+    [],
+  );
 
   // Define column definitions with proper typing
   const columnDefs: ColDef<ERPStockRow>[] = [
@@ -64,7 +66,7 @@ export default function ERPStockModal({
   // Load ERP stock data when modal is opened
   useEffect(() => {
     if (isOpen) {
-      loadERPStock().catch(error => {
+      loadERPStock().catch((error) => {
         console.error("Failed to load ERP stock:", error);
       });
     } else {
@@ -75,14 +77,21 @@ export default function ERPStockModal({
 
   // Pre-select zero count items when data is loaded
   useEffect(() => {
-    if (gridRef.current?.api && erpStock.length > 0 && existingScans.length > 0) {
+    if (
+      gridRef.current?.api &&
+      erpStock.length > 0 &&
+      existingScans.length > 0
+    ) {
       const api = gridRef.current.api;
 
       // Create a Set of keys for quick lookup
       const zeroCountKeys = new Set(
         existingScans
           .filter((scan) => scan.quantity === 0)
-          .map((scan) => `${scan.ref}-${scan.batchLot || ''}-${scan.location || ''}`)
+          .map(
+            (scan) =>
+              `${scan.ref}-${scan.batchLot || ""}-${scan.location || ""}`,
+          ),
       );
 
       // Select nodes that match existing zero count scans
@@ -97,7 +106,9 @@ export default function ERPStockModal({
     }
   }, [erpStock, existingScans]);
 
-  const handleSelectionChanged = (event: SelectionChangedEvent<ERPStockRow>) => {
+  const handleSelectionChanged = (
+    event: SelectionChangedEvent<ERPStockRow>,
+  ) => {
     const selected = event.api.getSelectedNodes();
     setSelectedNodes(selected as unknown as RowNode<ERPStockRow>[]);
   };
@@ -132,12 +143,11 @@ export default function ERPStockModal({
   };
 
   const onFilterTextBoxChanged = useCallback(() => {
-    const filterInput = document.getElementById("filter-text-box") as HTMLInputElement;
+    const filterInput = document.getElementById(
+      "filter-text-box",
+    ) as HTMLInputElement;
     if (filterInput && gridRef.current?.api) {
-      gridRef.current.api.setGridOption(
-        "quickFilterText",
-        filterInput.value
-      );
+      gridRef.current.api.setGridOption("quickFilterText", filterInput.value);
     }
   }, []);
 
