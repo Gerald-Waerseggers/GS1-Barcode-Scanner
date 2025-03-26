@@ -163,7 +163,7 @@ const ScansGrid: React.FC<ScansGridProps> = ({
         new Date(params.value).toLocaleTimeString(),
       sort: "desc",
     },
-    { field: "storageSite", headerName: "Storage Site" },
+    { field: "location", headerName: "Location" },
     { field: "gtin", headerName: "GTIN" },
 
     {
@@ -259,6 +259,7 @@ const ScansGrid: React.FC<ScansGridProps> = ({
           theme={themeQuartz}
           loadThemeGoogleFonts={true}
           rowData={scans}
+          
           columnDefs={columnDefs as ColDef<ScanRecord>[]}
           defaultColDef={defaultColDef}
           autoSizeStrategy={autoSizeStrategy}
