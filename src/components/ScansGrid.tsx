@@ -12,6 +12,7 @@ interface ScansGridProps {
   onEdit: (scan: ScanRecord) => void;
   onDelete: (scan: ScanRecord) => void;
   erpRefs: Set<string>;
+  allERPRefs: Set<string>;
   isStockCount?: boolean;
   expiredTime?: number;
 }
@@ -152,6 +153,7 @@ const ScansGrid: React.FC<ScansGridProps> = ({
   onEdit,
   onDelete,
   erpRefs = new Set(),
+  allERPRefs = new Set(),
   isStockCount = false,
   expiredTime,
 }) => {
@@ -171,16 +173,27 @@ const ScansGrid: React.FC<ScansGridProps> = ({
       headerName: "REF",
       cellRenderer: RefCellRenderer,
       cellClass: (params: { value: string }) => {
-        // Add light red background for REFs not in ERP
-        if (isStockCount && params.value && !erpRefs.has(params.value)) {
-          return "bg-red-100";
+        if (isStockCount && params.value) {
+          // Not in location but in full ERP database
+          if (!erpRefs.has(params.value) && allERPRefs.has(params.value)) {
+            return "bg-yellow-100"; // Yellow for "exists in ERP but not in this location"
+          }
+          // Not in any ERP database
+          if (!erpRefs.has(params.value) && !allERPRefs.has(params.value)) {
+            return "bg-red-100"; // Red for "not in any ERP database"
+          }
         }
         return "";
       },
       // Add tooltip for REFs not in ERP
       tooltipValueGetter: (params: { value: string }) => {
-        if (isStockCount && params.value && !erpRefs.has(params.value)) {
-          return "This REF is not found in the ERP system";
+        if (isStockCount && params.value) {
+          if (!erpRefs.has(params.value) && allERPRefs.has(params.value)) {
+            return "This REF exists in ERP but not in this location";
+          }
+          if (!erpRefs.has(params.value) && !allERPRefs.has(params.value)) {
+            return "This REF is not found in any ERP system";
+          }
         }
         return "";
       },

@@ -32,7 +32,7 @@ export const parseBarcode = (function () {
 
   function parseBarcode(barcode) {
     var i = 0, // counter
-      fncChar = String.fromCharCode(29), // the ASCII "group separator"
+      fncChar = String.fromCharCode(42), // the ASCII "group separator"
       barcodelength = barcode.length,
       answer = {}, // the object to return
       restOfBarcode = "", // the rest of the barcode, when first

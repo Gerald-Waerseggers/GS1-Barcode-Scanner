@@ -70,16 +70,17 @@ export interface ERPStockCount {
  * Loads and parses a stock count file from the ERP system
  * @param file The file to load
  * @param location The location to filter by
- * @returns An array of stock count items
+ * @returns An object with filtered stock counts and all REFs
  */
 export async function loadERPStockCount(
   file: File,
-  location: string,
-): Promise<ERPStockCount[]> {
+  location: string
+): Promise<{ stockCounts: ERPStockCount[], allRefs: Set<string> }> {
   try {
     const text = await file.text();
     const lines = text.split("\n");
     const stockCounts: ERPStockCount[] = [];
+    const allRefs = new Set<string>();  // To track all REFs in the file
 
     // Validate file format using the first non-empty line
     const firstLine = lines.find((line) => line.trim() !== "");
@@ -109,6 +110,11 @@ export async function loadERPStockCount(
         continue;
       }
 
+      // Add to allRefs regardless of location
+      if (ref.trim()) {
+        allRefs.add(ref.trim());
+      }
+
       // Only process items with location containing the specified location
       if (erpLocation.includes(location)) {
         const quantity = Number(quantityStr) || 0;
@@ -123,18 +129,36 @@ export async function loadERPStockCount(
     }
 
     if (stockCounts.length === 0) {
-      throw new Error("No valid stock counts found in file");
+      throw new Error("No valid stock counts found in file for this location");
     }
 
-    console.log("Loaded stock counts:", stockCounts); // Debug log
+    console.log(`Loaded ${stockCounts.length} stock counts and ${allRefs.size} unique REFs`);
+    
+    // Save both the filtered stock counts and all refs
     await saveERPStockCount("erp-stock.json", JSON.stringify(stockCounts));
-    return stockCounts;
+    await saveERPStockCount("all-erp-refs.json", JSON.stringify(Array.from(allRefs)));
+    
+    return { stockCounts, allRefs };
   } catch (error) {
-    console.error("Failed to load ERP stock count:", error); // Debug log
+    console.error("Failed to load ERP stock count:", error);
     toast.error(
       `Failed to load ERP stock count: ${error instanceof Error ? error.message : String(error)}`,
     );
-    return [];
+    return { stockCounts: [], allRefs: new Set() };
+  }
+}
+
+/**
+ * Gets all REFs from the ERP database
+ * @returns A Set of all REF values from the ERP database
+ */
+export async function getAllERPRefs(): Promise<Set<string>> {
+  try {
+    const content = await loadMappingFile("all-erp-refs.json");
+    return content ? new Set(JSON.parse(content) as string[]) : new Set();
+  } catch (error) {
+    console.warn(`No all-erp-refs.json file found: ${error}`);
+    return new Set();
   }
 }
 

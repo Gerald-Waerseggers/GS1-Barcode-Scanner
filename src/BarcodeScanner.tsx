@@ -16,7 +16,7 @@ import toast from "react-hot-toast";
 import ERPStockModal, { ERPStockRow } from "./components/ERPStockModal";
 import ExportInfoModal from "./components/ExportInfoModal";
 import StockReceiptExportInfoModal from "./components/StockReceiptExportInfoModal";
-import { getERPStockCount } from "./utils/opfsUtils";
+import { getERPStockCount, getAllERPRefs } from "./utils/opfsUtils";
 import { playSound } from "./utils/PlaySound";
 
 export default function BarcodeScanner() {
@@ -27,6 +27,7 @@ export default function BarcodeScanner() {
     movementCode: "",
     location: "",
     addRefMode: true,
+    expiredTime: 6,
   });
   const [scans, setScans] = useState<ScanRecord[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -42,13 +43,21 @@ export default function BarcodeScanner() {
     useState(false);
   const [erpRefs, setErpRefs] = useState<Set<string>>(new Set());
   const erpRefsLoaded = useRef(false);
+  const [allERPRefs, setAllERPRefs] = useState<Set<string>>(new Set());
+  const allERPRefsLoaded = useRef(false);
 
   // Load ERP REFs when in stock count mode
   useEffect(() => {
-    if (setupInfo.stockCount && !erpRefsLoaded.current) {
-      loadERPRefs();
+    if (setupInfo.stockCount) {
+      if (!erpRefsLoaded.current) {
+        loadERPRefs();
+      }
+      if (!allERPRefsLoaded.current) {
+        loadAllERPRefs();
+      }
     }
   }, [setupInfo.stockCount]);
+  
 
   const loadERPRefs = async () => {
     try {
@@ -60,6 +69,17 @@ export default function BarcodeScanner() {
     } catch (error) {
       console.error("Failed to load ERP REFs:", error);
       toast.error("Failed to load ERP reference data");
+    }
+  };
+  
+  const loadAllERPRefs = async () => {
+    try {
+      const allRefs = await getAllERPRefs();
+      setAllERPRefs(allRefs);
+      allERPRefsLoaded.current = true;
+      console.log(`Loaded ${allRefs.size} total REFs from ERP`);
+    } catch (error) {
+      console.error("Failed to load all ERP REFs:", error);
     }
   };
 
@@ -463,6 +483,7 @@ export default function BarcodeScanner() {
             onEdit={handleEdit}
             onDelete={handleDelete}
             erpRefs={erpRefs}
+            allERPRefs={allERPRefs}
             isStockCount={setupInfo.stockCount}
             expiredTime={setupInfo.expiredTime}
           />

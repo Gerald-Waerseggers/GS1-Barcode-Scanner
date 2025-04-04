@@ -12,13 +12,35 @@ interface ParsedGS1Data {
 
 export function parseGS1(barcode: string): ParsedGS1Data {
   try {
-    // Add symbology identifier if missing
-    if (!barcode.startsWith("]") && barcode.startsWith("C1")) {
-      // If it has ] but not complete ]C1 prefix, add the C1 part
-      barcode = "]" + barcode;
-    } else if (!barcode.startsWith("]")) {
-      // Add ]C1 prefix if missing (GS1-128 symbology identifier)
-      barcode = "]C1" + barcode;
+    // Handle different symbology identifiers
+    if (!barcode.startsWith("]")) {
+      // If it doesn't start with ], check for common prefixes
+      if (barcode.startsWith("C1")) {
+        // GS1-128 format without ]
+        barcode = "]" + barcode;
+      } else if (barcode.startsWith("d2")) {
+        // QR code format without ]
+        barcode = "]" + barcode;
+      } else {
+        // No recognizable prefix, assume GS1-128
+        barcode = "]C1" + barcode;
+      }
+    } else if (
+      barcode.startsWith("]") &&
+      !barcode.startsWith("]C1") &&
+      !barcode.startsWith("]d2")
+    ) {
+      // Has ] but missing the format indicator
+      if (barcode.substring(1).startsWith("C1")) {
+        // Already has C1 after ]
+        // No change needed
+      } else if (barcode.substring(1).startsWith("d2")) {
+        // Already has D2 after ]
+        // No change needed
+      } else {
+        // Only has ], assume GS1-128
+        barcode = "]C1" + barcode.substring(1);
+      }
     }
 
     barcode = barcode.replace(/§/g, "-");
