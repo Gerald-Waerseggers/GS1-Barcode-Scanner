@@ -18,7 +18,7 @@ export async function exportStockCountCSV(
   const erpStock = await getERPStockCount();
 
   // Get unique REFs that were scanned
-  const scannedRefs = new Set(scans.map((scan) => scan.ref));
+  const scannedRefs = new Set(scans.map((scan) => scan.ref?.toLowerCase()));
 
   // Process scans and compare with ERP data
   const scanLines = scans.map((scan) => {
@@ -47,12 +47,12 @@ export async function exportStockCountCSV(
   // Add unscanned lots only for REFs that were scanned
   erpStock.forEach((item) => {
     // Only process if this REF was scanned at least once
-    if (scannedRefs.has(item.ref)) {
-      const key = `${item.ref}-${item.lotNumber}-${item.location}`;
+    if (scannedRefs.has(item.ref.toLowerCase())) {
+      const key = `${item.ref.toLowerCase()}-${item.lotNumber.toLowerCase()}-${item.location}`;
       if (
         !scans.some(
           (scan) =>
-            `${scan.ref}-${scan.batchLot}-${scan.location || setupInfo.location}` ===
+            `${scan.ref?.toLowerCase()}-${scan.batchLot?.toLowerCase()}-${scan.location || setupInfo.location}` ===
             key,
         )
       ) {

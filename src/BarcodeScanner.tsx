@@ -57,7 +57,6 @@ export default function BarcodeScanner() {
       }
     }
   }, [setupInfo.stockCount]);
-  
 
   const loadERPRefs = async () => {
     try {
@@ -71,7 +70,7 @@ export default function BarcodeScanner() {
       toast.error("Failed to load ERP reference data");
     }
   };
-  
+
   const loadAllERPRefs = async () => {
     try {
       const allRefs = await getAllERPRefs();

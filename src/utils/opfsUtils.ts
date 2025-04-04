@@ -74,13 +74,13 @@ export interface ERPStockCount {
  */
 export async function loadERPStockCount(
   file: File,
-  location: string
-): Promise<{ stockCounts: ERPStockCount[], allRefs: Set<string> }> {
+  location: string,
+): Promise<{ stockCounts: ERPStockCount[]; allRefs: Set<string> }> {
   try {
     const text = await file.text();
     const lines = text.split("\n");
     const stockCounts: ERPStockCount[] = [];
-    const allRefs = new Set<string>();  // To track all REFs in the file
+    const allRefs = new Set<string>(); // To track all REFs in the file
 
     // Validate file format using the first non-empty line
     const firstLine = lines.find((line) => line.trim() !== "");
@@ -132,12 +132,17 @@ export async function loadERPStockCount(
       throw new Error("No valid stock counts found in file for this location");
     }
 
-    console.log(`Loaded ${stockCounts.length} stock counts and ${allRefs.size} unique REFs`);
-    
+    console.log(
+      `Loaded ${stockCounts.length} stock counts and ${allRefs.size} unique REFs`,
+    );
+
     // Save both the filtered stock counts and all refs
     await saveERPStockCount("erp-stock.json", JSON.stringify(stockCounts));
-    await saveERPStockCount("all-erp-refs.json", JSON.stringify(Array.from(allRefs)));
-    
+    await saveERPStockCount(
+      "all-erp-refs.json",
+      JSON.stringify(Array.from(allRefs)),
+    );
+
     return { stockCounts, allRefs };
   } catch (error) {
     console.error("Failed to load ERP stock count:", error);

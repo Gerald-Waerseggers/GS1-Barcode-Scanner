@@ -41,16 +41,18 @@ const SetupForm: React.FC<SetupFormProps> = ({
     });
   };
 
-  const handleERPFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleERPFileUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const file = e.target.files?.[0];
     if (file) {
       // Delete existing ERP stock count before loading new one
       await deleteERPStockCount();
       const { stockCounts, allRefs } = await loadERPStockCount(file, location);
-      
+
       if (stockCounts.length > 0) {
         toast.success(
-          `ERP stock count loaded: ${stockCounts.length} items for location, ${allRefs.size} total REFs`
+          `ERP stock count loaded: ${stockCounts.length} items for location, ${allRefs.size} total REFs`,
         );
       } else {
         toast.error("Failed to load ERP stock count for this location");
