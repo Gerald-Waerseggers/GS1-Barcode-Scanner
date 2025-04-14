@@ -15,6 +15,7 @@ interface ScansGridProps {
   allERPRefs: Set<string>;
   isStockCount?: boolean;
   expiredTime?: number;
+  onSetChange?: (scan: ScanRecord, value: boolean) => void;
 }
 
 // Define the ActionCellRenderer component.
@@ -37,6 +38,12 @@ interface RefCellRendererProps {
   node: {
     setDataValue: (field: string, value: string) => void;
   };
+}
+
+// Add new interface for Set checkbox cell renderer
+interface SetCheckboxRendererProps {
+  data: ScanRecord;
+  onSetChange: (scan: ScanRecord, value: boolean) => void;
 }
 
 const ActionCellRenderer: React.FC<ActionCellRendererProps> = (props) => {
@@ -64,6 +71,19 @@ const ActionCellRenderer: React.FC<ActionCellRendererProps> = (props) => {
 const QuantityCellRenderer: React.FC<QuantityCellRendererProps> = (props) => {
   const { data } = props;
   return data.quantity || 0;
+};
+
+const SetCheckboxRenderer: React.FC<SetCheckboxRendererProps> = (props) => {
+  const { data, onSetChange } = props;
+  return (
+    <input
+      type="checkbox"
+      checked={data.isSet || false}
+      onChange={(e) => onSetChange(data, e.target.checked)}
+      className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+      title="Mark item for set"
+    />
+  );
 };
 
 const RefCellRenderer: React.FC<RefCellRendererProps> = (props) => {
@@ -152,6 +172,7 @@ const ScansGrid: React.FC<ScansGridProps> = ({
   scans,
   onEdit,
   onDelete,
+  onSetChange,
   erpRefs = new Set(),
   allERPRefs = new Set(),
   isStockCount = false,
@@ -241,6 +262,17 @@ const ScansGrid: React.FC<ScansGridProps> = ({
         }
         return "";
       },
+    },
+    {
+      headerName: "Set",
+      field: "isSet",
+      cellRenderer: SetCheckboxRenderer,
+      cellRendererParams: {
+        onSetChange: onSetChange,
+      },
+      width: 80,
+      sortable: true,
+      filter: true,
     },
     {
       headerName: "Actions",

@@ -25,27 +25,72 @@ export async function exportStockCountCSV(
   );
 
   // Process scans and compare with ERP data
-  const scanLines = scans.map((scan) => {
+  const scanLines: string[] = [];
+
+  scans.forEach((scan) => {
     const countedQuantity = scan.quantity || 0;
     const zeroStock = countedQuantity === 0 ? "2" : "1";
 
-    return [
-      "S",
-      "",
-      "",
-      "",
-      setupInfo.storageSite,
-      countedQuantity,
-      countedQuantity,
-      zeroStock,
-      scan.ref,
-      scan.batchLot,
-      scan.location || setupInfo.location || "",
-      "A",
-      "UN",
-      "1",
-      scan.expirationDate ? scan.expirationDate.replace(/-/g, "") : "",
-    ].join(";");
+    // Determine location based on Set flag or if location is MMPER
+    let location = scan.location || setupInfo.location || "";
+    let originalLocation = location;
+    let needsZeroCount = false;
+
+    // Handle Set items and MMPER items the same way - in the export, not in the UI
+    if (scan.isSet && countedQuantity > 0) {
+      location = "MMSET";
+      needsZeroCount = true;
+    } else if (location === "MMPER" && countedQuantity > 0) {
+      // Keep MMPER location but add zero count for original location
+      // We need to get the original location from setupInfo since MMPER items
+      // don't store their original location
+      originalLocation = setupInfo.location;
+      needsZeroCount = true;
+    }
+
+    // Add the regular scan line
+    scanLines.push(
+      [
+        "S",
+        "",
+        "",
+        "",
+        setupInfo.storageSite,
+        countedQuantity,
+        countedQuantity,
+        zeroStock,
+        scan.ref,
+        scan.batchLot,
+        location,
+        "A",
+        "UN",
+        "1",
+        scan.expirationDate ? scan.expirationDate.replace(/-/g, "") : "",
+      ].join(";"),
+    );
+
+    // For items marked as "Set" or items in MMPER, add a zero count line for the original location
+    if (needsZeroCount && originalLocation !== location) {
+      scanLines.push(
+        [
+          "S",
+          "",
+          "",
+          "",
+          setupInfo.storageSite,
+          "0", // Zero quantity
+          "0",
+          "2", // Zero stock indicator
+          scan.ref,
+          scan.batchLot,
+          originalLocation, // Original location
+          "A",
+          "UN",
+          "1",
+          scan.expirationDate ? scan.expirationDate.replace(/-/g, "") : "",
+        ].join(";"),
+      );
+    }
   });
 
   // Add unscanned lots only for REFs that were scanned
