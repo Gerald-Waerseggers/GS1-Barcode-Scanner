@@ -3,7 +3,7 @@ import { getERPStockCount } from "./opfsUtils";
 
 export async function exportStockCountCSV(
   scans: ScanRecord[],
-  setupInfo: ScanSetup
+  setupInfo: ScanSetup,
 ) {
   if (scans.length === 0) return;
 
@@ -21,7 +21,7 @@ export async function exportStockCountCSV(
   const scannedRefs = new Set(
     scans
       .filter((scan) => scan.quantity !== 0) // Exclude scans with zero quantity
-      .map((scan) => scan.ref?.toLowerCase())
+      .map((scan) => scan.ref?.toLowerCase()),
   );
 
   // Process scans and compare with ERP data
@@ -66,7 +66,7 @@ export async function exportStockCountCSV(
         "UN",
         "1",
         scan.expirationDate ? scan.expirationDate.replace(/-/g, "") : "",
-      ].join(";")
+      ].join(";"),
     );
 
     // For items marked as "Set" or items in MMPER, add a zero count line for the original location
@@ -88,7 +88,7 @@ export async function exportStockCountCSV(
           "UN",
           "1",
           scan.expirationDate ? scan.expirationDate.replace(/-/g, "") : "",
-        ].join(";")
+        ].join(";"),
       );
     }
   });
@@ -102,7 +102,7 @@ export async function exportStockCountCSV(
         !scans.some(
           (scan) =>
             `${scan.ref?.toLowerCase()}-${scan.batchLot?.toLowerCase()}-${scan.location || setupInfo.location}` ===
-            key
+            key,
         )
       ) {
         scanLines.push(
@@ -122,7 +122,7 @@ export async function exportStockCountCSV(
             "UN",
             "1",
             "",
-          ].join(";")
+          ].join(";"),
         );
       }
     }
