@@ -46,7 +46,7 @@ export default function BarcodeScanner() {
   const [allERPRefs, setAllERPRefs] = useState<Set<string>>(new Set());
   const allERPRefsLoaded = useRef(false);
   const [lastScannedItem, setLastScannedItem] = useState<ScanRecord | null>(
-    null,
+    null
   );
 
   // Load ERP REFs when in stock count mode
@@ -99,7 +99,7 @@ export default function BarcodeScanner() {
       // Helper function to check if a date is expired
       const isDateExpired = (
         dateStr: string | undefined,
-        expiryThresholdMonths: number,
+        expiryThresholdMonths: number
       ) => {
         if (!dateStr) return false;
         const date = new Date();
@@ -116,14 +116,14 @@ export default function BarcodeScanner() {
             (scan) =>
               scan.ref === parsedData.ref &&
               (scan.batchLot || "") === (parsedData.batchLot || "") &&
-              scan.location === location,
+              scan.location === location
           );
         } else if (parsedData.gtin) {
           return prevScans.findIndex(
             (scan) =>
               scan.gtin === parsedData.gtin &&
               (scan.batchLot || "") === (parsedData.batchLot || "") &&
-              scan.location === location,
+              scan.location === location
           );
         }
         return -1;
@@ -137,7 +137,7 @@ export default function BarcodeScanner() {
       const expiryThresholdMonths = setupInfo.expiredTime || 6;
       const isItemExpired = isDateExpired(
         parsedData.expirationDate,
-        expiryThresholdMonths,
+        expiryThresholdMonths
       );
 
       // Create a copy of scans to update
@@ -149,13 +149,15 @@ export default function BarcodeScanner() {
         const currentQuantity = mmperScan.quantity || 0;
 
         // Update quantity of MMPER item
-        updatedScans[mmperLocationIndex] = {
+        const updatedMmperScan = {
           ...mmperScan,
           quantity: currentQuantity + 1,
         };
+        updatedScans[mmperLocationIndex] = updatedMmperScan;
 
         playSound("expired");
         toast.success(`Updated expired item in MMPER location`);
+        setLastScannedItem(updatedMmperScan);
         return updatedScans;
       }
 
@@ -167,7 +169,7 @@ export default function BarcodeScanner() {
         // Check if existing item is expired
         const isExistingExpired = isDateExpired(
           existingScan.expirationDate,
-          expiryThresholdMonths,
+          expiryThresholdMonths
         );
 
         if (isExistingExpired) {
@@ -190,21 +192,26 @@ export default function BarcodeScanner() {
 
           playSound("expired");
           toast.error(`Expired item moved to MMPER location`);
+
+          // Set the MMPER scan as the last scanned item
+          setLastScannedItem(mmperScan);
         } else {
           // Normal non-expired item, just increment quantity
-          updatedScans[currentLocationIndex] = {
+          const updatedScan = {
             ...existingScan,
             quantity: currentQuantity + 1,
           };
+          updatedScans[currentLocationIndex] = updatedScan;
 
           toast.success(
-            `Incremented quantity for ${existingScan.ref || existingScan.gtin}`,
+            `Incremented quantity for ${existingScan.ref || existingScan.gtin}`
           );
           playSound("success");
+
+          // Set the updated scan as the last scanned item
+          setLastScannedItem(updatedScan);
         }
 
-          // If exists, set the existing item as last scanned
-          setLastScannedItem(existingScan);
         return updatedScans;
       }
 
@@ -243,7 +250,6 @@ export default function BarcodeScanner() {
           newScan.notInERP = true;
         }
       }
-
       return [...updatedScans, newScan];
     };
   };
@@ -261,8 +267,26 @@ export default function BarcodeScanner() {
         return;
       }
 
-      // Use the extracted function
-      setScans(processScannedItem(parsedData));
+      // Create a reference for the new scan (for cases where a completely new item is added)
+      let newItemRef: ScanRecord | null = null;
+
+      // Use the extracted function with a callback to capture the newly created item
+      setScans((prevScans) => {
+        const newScans = processScannedItem(parsedData)(prevScans);
+
+        // If a new item was added (length increased), get the last item
+        if (newScans.length > prevScans.length) {
+          newItemRef = newScans[newScans.length - 1];
+        }
+
+        return newScans;
+      });
+
+      // Update lastScannedItem if we have a new item
+      if (newItemRef) {
+        setLastScannedItem(newItemRef);
+      }
+
       setError(null);
     } catch (err) {
       toast.error((err as Error).message);
@@ -290,8 +314,8 @@ export default function BarcodeScanner() {
   const handleSaveEdit = (updatedScan: ScanRecord) => {
     setScans((prev) =>
       prev.map((scan) =>
-        scan.timestamp === updatedScan.timestamp ? updatedScan : scan,
-      ),
+        scan.timestamp === updatedScan.timestamp ? updatedScan : scan
+      )
     );
     setIsEditModalOpen(false);
     setEditingScan(null);
@@ -310,6 +334,7 @@ export default function BarcodeScanner() {
   const clearScans = () => {
     if (confirm("Are you sure you want to clear all scans?")) {
       setScans([]);
+      setLastScannedItem(null);
     }
   };
 
@@ -334,14 +359,32 @@ export default function BarcodeScanner() {
         quantity: manualScan.quantity || 1,
       };
 
+      // Create a reference for the new scan
+      let newItemRef: ScanRecord | null = null;
+
       // Use the same processing function as handleScan
-      setScans(processScannedItem(parsedData));
+      setScans((prevScans) => {
+        const newScans = processScannedItem(parsedData)(prevScans);
+
+        // If a new item was added (length increased), get the last item
+        if (newScans.length > prevScans.length) {
+          newItemRef = newScans[newScans.length - 1];
+        }
+
+        return newScans;
+      });
+
+      // Update lastScannedItem if we have a new item
+      if (newItemRef) {
+        setLastScannedItem(newItemRef);
+      }
+
       setIsAddModalOpen(false);
       setError(null);
     } catch (err) {
       toast.error((err as Error).message);
       setError(
-        err instanceof Error ? err.message : "Invalid manual entry format",
+        err instanceof Error ? err.message : "Invalid manual entry format"
       );
       playSound("alert");
     }
@@ -349,7 +392,7 @@ export default function BarcodeScanner() {
 
   const handleSetChange = (scan: ScanRecord, isSet: boolean) => {
     setScans((prev) =>
-      prev.map((s) => (s.timestamp === scan.timestamp ? { ...s, isSet } : s)),
+      prev.map((s) => (s.timestamp === scan.timestamp ? { ...s, isSet } : s))
     );
   };
 
@@ -377,14 +420,14 @@ export default function BarcodeScanner() {
       // Create a set of existing keys to avoid duplicates
       const existingKeys = new Set(
         zeroCountRecords.map(
-          (record) => `${record.ref}-${record.batchLot}-${record.location}`,
-        ),
+          (record) => `${record.ref}-${record.batchLot}-${record.location}`
+        )
       );
 
       // Filter out any existing scans that match the zero count records
       const filteredScans = newScans.filter(
         (scan) =>
-          !existingKeys.has(`${scan.ref}-${scan.batchLot}-${scan.location}`),
+          !existingKeys.has(`${scan.ref}-${scan.batchLot}-${scan.location}`)
       );
 
       // Combine the filtered scans with the new zero count records
