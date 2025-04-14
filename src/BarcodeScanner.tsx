@@ -104,130 +104,174 @@ export default function BarcodeScanner() {
       }
 
       setScans((prevScans) => {
-        // First, try to find a match by direct comparison
-        let existingIndex = -1;
-
-        // If we have a REF, match by REF + batch/lot + location
-        if (parsedData.ref) {
-          existingIndex = prevScans.findIndex(
-            (scan) =>
-              scan.ref === parsedData.ref &&
-              (scan.batchLot || "") === (parsedData.batchLot || "") &&
-              scan.location === setupInfo.location,
-          );
-        }
-
-        // If no match by REF or no REF available, try matching by GTIN + batch/lot + location
-        if (existingIndex === -1 && parsedData.gtin) {
-          existingIndex = prevScans.findIndex(
-            (scan) =>
-              scan.gtin === parsedData.gtin &&
-              (scan.batchLot || "") === (parsedData.batchLot || "") &&
-              scan.location === setupInfo.location,
-          );
-        }
-
-        // Debug logging
-        console.log("Parsed data:", parsedData);
-        console.log("Matching index:", existingIndex);
-
-        if (existingIndex >= 0) {
-          // If exists, increment quantity
-          const updatedScans = [...prevScans];
-          const currentQuantity = updatedScans[existingIndex].quantity || 0;
-          updatedScans[existingIndex] = {
-            ...updatedScans[existingIndex],
-            quantity: currentQuantity + 1,
-          };
-
-          // Check if the existing item is expired
-          const existingScan = updatedScans[existingIndex];
-
-          const expiryThresholdMonths = setupInfo.expiredTime || 6; // Use the configured threshold
-          // Check if item is expired
+        // Helper function to check if a date is expired
+        const isDateExpired = (dateStr?: string, thresholdMonths = 0) => {
+          if (!dateStr) return false;
           const date = new Date();
+          if (thresholdMonths > 0) {
+            date.setMonth(date.getMonth() + thresholdMonths);
+          }
+          return new Date(dateStr) < date;
+        };
 
-          const isExpired = existingScan.expirationDate
-            ? new Date(existingScan.expirationDate) <
-              new Date(date.setMonth(date.getMonth() + expiryThresholdMonths))
-            : false;
+        // Helper function to find matching scan
+        const findMatchingItem = (location: string) => {
+          if (parsedData.ref) {
+            return prevScans.findIndex(
+              (scan) =>
+                scan.ref === parsedData.ref &&
+                (scan.batchLot || "") === (parsedData.batchLot || "") &&
+                scan.location === location
+            );
+          } else if (parsedData.gtin) {
+            return prevScans.findIndex(
+              (scan) =>
+                scan.gtin === parsedData.gtin &&
+                (scan.batchLot || "") === (parsedData.batchLot || "") &&
+                scan.location === location
+            );
+          }
+          return -1;
+        };
 
-          toast.success(
-            `Incremented quantity for ${existingScan.ref || existingScan.gtin}`,
+        // Find existing items
+        const currentLocationIndex = findMatchingItem(setupInfo.location);
+        const mmperLocationIndex = findMatchingItem("MMPER");
+
+        // Check if the item is expired
+        const expiryThresholdMonths = setupInfo.expiredTime || 6;
+        const isItemExpired = isDateExpired(parsedData.expirationDate);
+
+        // Create a copy of scans to update
+        const updatedScans = [...prevScans];
+
+        // CASE 1: Item exists in current location
+        if (currentLocationIndex >= 0) {
+          const existingScan = updatedScans[currentLocationIndex];
+          const currentQuantity = existingScan.quantity || 0;
+
+          // Check if existing item is expired
+          const isExistingExpired = isDateExpired(
+            existingScan.expirationDate,
+            expiryThresholdMonths
           );
 
-          // Play appropriate sound based on expiration status
-          if (isExpired) {
+          if (isExistingExpired) {
+            // Set current location item to zero
+            updatedScans[currentLocationIndex] = {
+              ...existingScan,
+              quantity: 0,
+            };
+
+            // Handle MMPER location
+            if (mmperLocationIndex !== -1) {
+              // Update existing MMPER entry
+              const mmperScan = updatedScans[mmperLocationIndex];
+              updatedScans[mmperLocationIndex] = {
+                ...mmperScan,
+                quantity: (mmperScan.quantity || 0) + currentQuantity + 1,
+              };
+            } else {
+              // Create new MMPER entry
+              updatedScans.push({
+                ...existingScan,
+                timestamp: new Date().toISOString(),
+                location: "MMPER",
+                quantity: currentQuantity + 1,
+              });
+            }
+
             playSound("expired");
-            toast.error(
-              `Warning: Item is expired (${existingScan.expirationDate})`,
-            );
+            toast.error(`Expired item moved to MMPER location`);
           } else {
+            // Normal non-expired item, just increment quantity
+            updatedScans[currentLocationIndex] = {
+              ...existingScan,
+              quantity: currentQuantity + 1,
+            };
+
+            toast.success(
+              `Incremented quantity for ${existingScan.ref || existingScan.gtin}`
+            );
             playSound("success");
           }
 
           return updatedScans;
-        } else {
-          // If new, add with quantity 1
-          const newScan: ScanRecord = {
-            timestamp: new Date().toISOString(),
-            ...parsedData,
-            storageSite: setupInfo.storageSite,
-            location: setupInfo.location,
-            quantity: 1,
-            movementCode: setupInfo.movementCode,
-          };
-
-          // If in addRefMode and no REF, leave it empty for manual entry
-          if (setupInfo.addRefMode && !newScan.ref) {
-            newScan.ref = "";
-          }
-          const expiryThresholdMonths = setupInfo.expiredTime || 6; // Use the configured threshold
-          // Check if item is expired
-          const date = new Date();
-
-          const isExpired = newScan.expirationDate
-            ? new Date(newScan.expirationDate) <
-              new Date(date.setMonth(date.getMonth() + expiryThresholdMonths))
-            : false;
-
-          // Play alert sound for missing REF
-          setTimeout(() => {
-            if (newScan.ref === "") {
-              playSound("alert");
-              // Also show a toast notification
-              toast.error("Missing REF - Please enter a REF for this item");
-            } else if (isExpired) {
-              playSound("expired");
-              toast.error(
-                `Warning: Item is expired (${newScan.expirationDate})`,
-              );
-            } else {
-              playSound("success");
-              toast.success("Item added successfully");
-            }
-          }, 100);
-
-          // Check if REF exists in ERP when in stock count mode
-          if (setupInfo.stockCount && newScan.ref && erpRefs.size > 0) {
-            if (!erpRefs.has(newScan.ref)) {
-              toast.error(
-                `Warning: REF "${newScan.ref}" not found in ERP system`,
-              );
-              newScan.notInERP = true;
-            }
-          }
-
-          return [...prevScans, newScan];
         }
+
+        // CASE 2: New scan
+        const newScan: ScanRecord = {
+          timestamp: new Date().toISOString(),
+          ...parsedData,
+          storageSite: setupInfo.storageSite,
+          location: setupInfo.location,
+          quantity: 1,
+          movementCode: setupInfo.movementCode,
+          ref: setupInfo.addRefMode && !parsedData.ref ? "" : parsedData.ref,
+        };
+
+        // CASE 2a: Expired new item
+        if (isItemExpired) {
+          // Create zero quantity scan for current location
+          const zeroScan: ScanRecord = { ...newScan, quantity: 0 };
+
+          // Handle MMPER location
+          if (mmperLocationIndex !== -1) {
+            // Update existing MMPER entry
+            const mmperScan = updatedScans[mmperLocationIndex];
+            updatedScans[mmperLocationIndex] = {
+              ...mmperScan,
+              quantity: (mmperScan.quantity || 0) + 1,
+            };
+            updatedScans.push(zeroScan);
+
+            playSound("expired");
+            toast.error(`Expired item quantity updated in MMPER location`);
+
+            return updatedScans;
+          } else {
+            // Create new MMPER entry
+            const mmperScan: ScanRecord = {
+              ...newScan,
+              location: "MMPER",
+              quantity: 1,
+            };
+
+            playSound("expired");
+            toast.error(`Expired item automatically moved to MMPER location`);
+
+            return [...updatedScans, zeroScan, mmperScan];
+          }
+        }
+
+        // CASE 2b: Normal new item
+        setTimeout(() => {
+          if (newScan.ref === "") {
+            playSound("alert");
+            toast.error("Missing REF - Please enter a REF for this item");
+          } else {
+            playSound("success");
+            toast.success("Item added successfully");
+          }
+        }, 100);
+
+        // Check if REF exists in ERP when in stock count mode
+        if (setupInfo.stockCount && newScan.ref && erpRefs.size > 0) {
+          if (!erpRefs.has(newScan.ref)) {
+            toast.error(
+              `Warning: REF "${newScan.ref}" not found in ERP system`
+            );
+            newScan.notInERP = true;
+          }
+        }
+
+        return [...updatedScans, newScan];
       });
 
       setError(null);
     } catch (err) {
       toast.error((err as Error).message);
       setError(err instanceof Error ? err.message : "Invalid barcode format");
-
-      // Play error sound
       playSound("alert");
     }
   };
@@ -251,8 +295,8 @@ export default function BarcodeScanner() {
   const handleSaveEdit = (updatedScan: ScanRecord) => {
     setScans((prev) =>
       prev.map((scan) =>
-        scan.timestamp === updatedScan.timestamp ? updatedScan : scan,
-      ),
+        scan.timestamp === updatedScan.timestamp ? updatedScan : scan
+      )
     );
     setIsEditModalOpen(false);
     setEditingScan(null);
@@ -307,14 +351,14 @@ export default function BarcodeScanner() {
       // Create a set of existing keys to avoid duplicates
       const existingKeys = new Set(
         zeroCountRecords.map(
-          (record) => `${record.ref}-${record.batchLot}-${record.location}`,
-        ),
+          (record) => `${record.ref}-${record.batchLot}-${record.location}`
+        )
       );
 
       // Filter out any existing scans that match the zero count records
       const filteredScans = newScans.filter(
         (scan) =>
-          !existingKeys.has(`${scan.ref}-${scan.batchLot}-${scan.location}`),
+          !existingKeys.has(`${scan.ref}-${scan.batchLot}-${scan.location}`)
       );
 
       // Combine the filtered scans with the new zero count records
