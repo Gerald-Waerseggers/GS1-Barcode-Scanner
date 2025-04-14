@@ -45,6 +45,9 @@ export default function BarcodeScanner() {
   const erpRefsLoaded = useRef(false);
   const [allERPRefs, setAllERPRefs] = useState<Set<string>>(new Set());
   const allERPRefsLoaded = useRef(false);
+  const [lastScannedItem, setLastScannedItem] = useState<ScanRecord | null>(
+    null,
+  );
 
   // Load ERP REFs when in stock count mode
   useEffect(() => {
@@ -166,6 +169,8 @@ export default function BarcodeScanner() {
             playSound("success");
           }
 
+          // If exists, set the existing item as last scanned
+          setLastScannedItem(existingScan);
           return updatedScans;
         } else {
           // If new, add with quantity 1
@@ -218,6 +223,8 @@ export default function BarcodeScanner() {
             }
           }
 
+          // If new, set the new item as last scanned
+          setLastScannedItem(newScan);
           return [...prevScans, newScan];
         }
       });
@@ -450,27 +457,26 @@ export default function BarcodeScanner() {
             onAddManual={handleAddManual}
             addRefMode={setupInfo.addRefMode}
           />
-          {scans.length > 0 && (
+          {lastScannedItem && (
             <div className="mb-4 p-3 bg-blue-50 rounded-md">
               <h3 className="font-medium text-blue-800">Last Scanned Item</h3>
               <div className="grid grid-cols-3 gap-4 mt-2">
                 <div>
                   <span className="text-sm text-gray-500">REF/GTIN:</span>
                   <span className="ml-2 font-medium">
-                    {scans[scans.length - 1].ref ||
-                      scans[scans.length - 1].gtin}
+                    {lastScannedItem.ref || lastScannedItem.gtin}
                   </span>
                 </div>
                 <div>
                   <span className="text-sm text-gray-500">Batch/Lot:</span>
                   <span className="ml-2 font-medium">
-                    {scans[scans.length - 1].batchLot || "N/A"}
+                    {lastScannedItem.batchLot || "N/A"}
                   </span>
                 </div>
                 <div>
                   <span className="text-sm text-gray-500">Quantity:</span>
                   <span className="ml-2 font-medium">
-                    {scans[scans.length - 1].quantity || 0}
+                    {lastScannedItem.quantity || 0}
                   </span>
                 </div>
               </div>
