@@ -287,7 +287,10 @@ const ScansGrid: React.FC<ScansGridProps> = ({
           domLayout="autoHeight"
         />
 
-        <h3 className="mt-2 text-center">Total Scanned: {scans.length}</h3>
+        <h3 className="mt-2 text-center">
+          Total Quantity:{" "}
+          {scans.reduce((sum, scan) => sum + (scan.quantity || 0), 0)}
+        </h3>
       </div>
     </div>
   );
