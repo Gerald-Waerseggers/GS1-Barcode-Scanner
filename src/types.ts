@@ -18,4 +18,5 @@ export interface ScanRecord {
   location: string;
   ref?: string;
   notInERP?: boolean;
+  isSet?: boolean;
 }
