@@ -156,6 +156,22 @@ export default function BarcodeScanner() {
           const existingScan = updatedScans[currentLocationIndex];
           const currentQuantity = existingScan.quantity || 0;
 
+          // Skip expiration logic if location is MMPER
+          if (existingScan.location === "MMPER") {
+            // Just increment quantity for MMPER location
+            updatedScans[currentLocationIndex] = {
+              ...existingScan,
+              quantity: currentQuantity + 1,
+            };
+
+            toast.success(
+              `Incremented quantity for ${existingScan.ref || existingScan.gtin}`
+            );
+            playSound("success");
+
+            return updatedScans;
+          }
+
           // Check if existing item is expired
           const isExistingExpired = isDateExpired(
             existingScan.expirationDate,
@@ -215,6 +231,31 @@ export default function BarcodeScanner() {
           movementCode: setupInfo.movementCode,
           ref: setupInfo.addRefMode && !parsedData.ref ? "" : parsedData.ref,
         };
+
+        // Skip expiration logic if location is MMPER
+        if (setupInfo.location === "MMPER") {
+          setTimeout(() => {
+            if (newScan.ref === "") {
+              playSound("alert");
+              toast.error("Missing REF - Please enter a REF for this item");
+            } else {
+              playSound("success");
+              toast.success("Item added to MMPER location");
+            }
+          }, 100);
+
+          // Check if REF exists in ERP when in stock count mode
+          if (setupInfo.stockCount && newScan.ref && erpRefs.size > 0) {
+            if (!erpRefs.has(newScan.ref)) {
+              toast.error(
+                `Warning: REF "${newScan.ref}" not found in ERP system`
+              );
+              newScan.notInERP = true;
+            }
+          }
+
+          return [...updatedScans, newScan];
+        }
 
         // CASE 2a: Expired new item
         if (isItemExpired) {
