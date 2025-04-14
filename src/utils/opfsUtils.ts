@@ -6,7 +6,7 @@ import toast from "react-hot-toast";
  * @returns The file contents as a string, or null if an error occurs
  */
 export async function loadMappingFile(
-  filename: string,
+  filename: string
 ): Promise<string | null> {
   try {
     // Get the root directory of the origin private file system
@@ -27,7 +27,7 @@ export async function loadMappingFile(
     }
   } catch (error) {
     toast.error(
-      `Failed to access OPFS: ${error instanceof Error ? error.message : String(error)}`,
+      `Failed to access OPFS: ${error instanceof Error ? error.message : String(error)}`
     );
     return null;
   }
@@ -41,7 +41,7 @@ export async function loadMappingFile(
  */
 export async function saveMappingFile(
   filename: string,
-  content: string,
+  content: string
 ): Promise<void> {
   try {
     const root = await navigator.storage.getDirectory();
@@ -51,7 +51,7 @@ export async function saveMappingFile(
     await writable.close();
   } catch (error) {
     toast.error(
-      `Failed to save file to OPFS: ${error instanceof Error ? error.message : String(error)}`,
+      `Failed to save file to OPFS: ${error instanceof Error ? error.message : String(error)}`
     );
   }
 }
@@ -74,7 +74,7 @@ export interface ERPStockCount {
  */
 export async function loadERPStockCount(
   file: File,
-  location: string,
+  location: string
 ): Promise<{ stockCounts: ERPStockCount[]; allRefs: Set<string> }> {
   try {
     const text = await file.text();
@@ -91,7 +91,7 @@ export async function loadERPStockCount(
     const parts = firstLine.split(";");
     if (parts.length !== 5 || parts[0] !== "S") {
       throw new Error(
-        "Invalid file format. Expected: S;REF;Lot;Location;Quantity",
+        "Invalid file format. Expected: S;REF;Lot;Location;Quantity"
       );
     }
 
@@ -133,21 +133,21 @@ export async function loadERPStockCount(
     }
 
     console.log(
-      `Loaded ${stockCounts.length} stock counts and ${allRefs.size} unique REFs`,
+      `Loaded ${stockCounts.length} stock counts and ${allRefs.size} unique REFs`
     );
 
     // Save both the filtered stock counts and all refs
     await saveERPStockCount("erp-stock.json", JSON.stringify(stockCounts));
     await saveERPStockCount(
       "all-erp-refs.json",
-      JSON.stringify(Array.from(allRefs)),
+      JSON.stringify(Array.from(allRefs))
     );
 
     return { stockCounts, allRefs };
   } catch (error) {
     console.error("Failed to load ERP stock count:", error);
     toast.error(
-      `Failed to load ERP stock count: ${error instanceof Error ? error.message : String(error)}`,
+      `Failed to load ERP stock count: ${error instanceof Error ? error.message : String(error)}`
     );
     return { stockCounts: [], allRefs: new Set() };
   }
@@ -175,7 +175,7 @@ export async function getAllERPRefs(): Promise<Set<string>> {
  */
 export async function saveERPStockCount(
   filename: string,
-  content: string,
+  content: string
 ): Promise<void> {
   try {
     const root = await navigator.storage.getDirectory();
@@ -185,7 +185,7 @@ export async function saveERPStockCount(
     await writable.close();
   } catch (error) {
     toast.error(
-      `Failed to save ERP stock count: ${error instanceof Error ? error.message : String(error)}`,
+      `Failed to save ERP stock count: ${error instanceof Error ? error.message : String(error)}`
     );
   }
 }
@@ -196,14 +196,14 @@ export async function saveERPStockCount(
  * @returns An array of stock count items
  */
 export async function getERPStockCount(
-  filename: string = "erp-stock.json",
+  filename: string = "erp-stock.json"
 ): Promise<ERPStockCount[]> {
   try {
     const content = await loadMappingFile(filename);
     return content ? (JSON.parse(content) as ERPStockCount[]) : [];
   } catch (error) {
     toast.error(
-      `Failed to load ERP stock count: ${error instanceof Error ? error.message : String(error)}`,
+      `Failed to load ERP stock count: ${error instanceof Error ? error.message : String(error)}`
     );
     return [];
   }
@@ -215,7 +215,7 @@ export async function getERPStockCount(
  * @returns A promise that resolves when the deletion is complete
  */
 export async function deleteERPStockCount(
-  filename: string = "erp-stock.json",
+  filename: string = "erp-stock.json"
 ): Promise<void> {
   try {
     const root = await navigator.storage.getDirectory();
