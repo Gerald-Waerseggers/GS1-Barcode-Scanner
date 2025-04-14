@@ -105,11 +105,14 @@ export default function BarcodeScanner() {
 
       setScans((prevScans) => {
         // Helper function to check if a date is expired
-        const isDateExpired = (dateStr?: string, thresholdMonths = 0) => {
+        const isDateExpired = (
+          dateStr: string | undefined,
+          expiryThresholdMonths: number
+        ) => {
           if (!dateStr) return false;
           const date = new Date();
-          if (thresholdMonths > 0) {
-            date.setMonth(date.getMonth() + thresholdMonths);
+          if (expiryThresholdMonths > 0) {
+            date.setMonth(date.getMonth() + expiryThresholdMonths);
           }
           return new Date(dateStr) < date;
         };
@@ -140,7 +143,10 @@ export default function BarcodeScanner() {
 
         // Check if the item is expired
         const expiryThresholdMonths = setupInfo.expiredTime || 6;
-        const isItemExpired = isDateExpired(parsedData.expirationDate);
+        const isItemExpired = isDateExpired(
+          parsedData.expirationDate,
+          expiryThresholdMonths
+        );
 
         // Create a copy of scans to update
         const updatedScans = [...prevScans];
