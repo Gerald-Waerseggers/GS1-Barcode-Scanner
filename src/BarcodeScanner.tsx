@@ -48,6 +48,10 @@ export default function BarcodeScanner() {
   const [lastScannedItem, setLastScannedItem] = useState<ScanRecord | null>(
     null
   );
+  const [pendingScan, setPendingScan] = useState<{
+    data: Partial<ScanRecord>;
+    needsInfo: string[];
+  } | null>(null);
 
   // Load ERP REFs when in stock count mode
   useEffect(() => {
@@ -262,12 +266,92 @@ export default function BarcodeScanner() {
 
     try {
       const parsedData = parseGS1(input.trim());
-      if (!parsedData.gtin) {
-        setError("Invalid barcode: No GTIN found");
+
+      // If there's a pending scan that needs completion
+      if (pendingScan) {
+        // Merge the new barcode data with the pending scan data
+        const mergedData: ScanRecord = {
+          ...pendingScan.data,
+          ...parsedData,
+          timestamp: pendingScan.data.timestamp || new Date().toISOString(),
+        } as ScanRecord;
+
+        // Check if we have the minimum required data now
+        const isComplete =
+          mergedData.gtin &&
+          (!setupInfo.addRefMode || mergedData.batchLot || mergedData.ref);
+
+        if (isComplete) {
+          // Process the completed scan
+          let newItemRef: ScanRecord | null = null;
+
+          setScans((prevScans) => {
+            const newScans = processScannedItem(mergedData)(prevScans);
+
+            // If a new item was added (length increased), get the last item
+            if (newScans.length > prevScans.length) {
+              newItemRef = newScans[newScans.length - 1];
+            }
+
+            return newScans;
+          });
+
+          // Update lastScannedItem if we have a new item
+          if (newItemRef) {
+            setLastScannedItem(newItemRef);
+          }
+
+          // Clear the pending scan now that it's complete
+          setPendingScan(null);
+          setError(null);
+          playSound("success");
+          toast.success("Complete item scanned with multi-part barcode");
+          return;
+        } else {
+          // Still missing information - update pending scan
+          const needsInfo = [];
+          if (!mergedData.gtin) needsInfo.push("GTIN");
+          if (setupInfo.addRefMode && !mergedData.batchLot && !mergedData.ref)
+            needsInfo.push("Batch/Lot or REF");
+
+          setPendingScan({
+            data: mergedData,
+            needsInfo: needsInfo,
+          });
+
+          toast.error(
+            `Please scan second barcode to complete missing information: ${needsInfo.join(", ")}`
+          );
+          return;
+        }
+      }
+
+      // No pending scan - check if this barcode has complete information
+      const needsInfo = [];
+      if (!parsedData.gtin) needsInfo.push("GTIN");
+      if (setupInfo.addRefMode && !parsedData.batchLot && !parsedData.ref)
+        needsInfo.push("Batch/Lot or REF");
+
+      const isIncomplete = needsInfo.length > 0;
+
+      if (isIncomplete) {
+        // Create a pending scan for incomplete information
+        setPendingScan({
+          data: {
+            ...parsedData,
+            timestamp: new Date().toISOString(),
+          },
+          needsInfo: needsInfo,
+        });
+
+        toast.error(
+          `Please scan second barcode to add: ${needsInfo.join(", ")}`
+        );
+        setError(null);
         return;
       }
 
-      // Create a reference for the new scan (for cases where a completely new item is added)
+      // Regular scanning process for complete barcode
       let newItemRef: ScanRecord | null = null;
 
       // Use the extracted function with a callback to capture the newly created item
@@ -453,6 +537,13 @@ export default function BarcodeScanner() {
     }
   };
 
+  // Add a function to cancel the pending scan
+  const cancelPendingScan = () => {
+    setPendingScan(null);
+    setError(null);
+    toast.error("Multi-part scan cancelled");
+  };
+
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       if (scans.length > 0) {
@@ -562,6 +653,8 @@ export default function BarcodeScanner() {
             error={error}
             onAddManual={handleAddManual}
             addRefMode={setupInfo.addRefMode}
+            pendingScan={pendingScan}
+            onCancelPendingScan={cancelPendingScan}
           />
           {lastScannedItem && (
             <div className="mb-4 p-3 bg-blue-50 rounded-md">
