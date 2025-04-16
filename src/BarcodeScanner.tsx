@@ -18,6 +18,7 @@ import ExportInfoModal from "./components/ExportInfoModal";
 import StockReceiptExportInfoModal from "./components/StockReceiptExportInfoModal";
 import { getERPStockCount, getAllERPRefs } from "./utils/opfsUtils";
 import { playSound } from "./utils/PlaySound";
+import { parseBarcode } from "./utils/BarcodesParser";
 
 export default function BarcodeScanner() {
   const [isSetup, setIsSetup] = useState(false);
@@ -261,9 +262,10 @@ export default function BarcodeScanner() {
     }
 
     try {
-      const parsedData = parseGS1(input.trim());
-      if (!parsedData.gtin) {
-        setError("Invalid barcode: No GTIN found");
+      const parsedData = parseBarcode(input.trim());
+      console.log(parsedData);
+      if (!parsedData.gtin && !parsedData.product) {
+        setError("Invalid barcode: No GTIN or product identifier found");
         return;
       }
 
