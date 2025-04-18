@@ -66,6 +66,7 @@ export async function exportStockCountCSV(
         "UN",
         "1",
         scan.expirationDate ? scan.expirationDate.replace(/-/g, "") : "",
+        scan.batchLot,
       ].join(";"),
     );
 
@@ -88,6 +89,7 @@ export async function exportStockCountCSV(
           "UN",
           "1",
           scan.expirationDate ? scan.expirationDate.replace(/-/g, "") : "",
+          scan.batchLot,
         ].join(";"),
       );
     }
@@ -122,6 +124,7 @@ export async function exportStockCountCSV(
             "UN",
             "1",
             "",
+            item.lotNumber,
           ].join(";"),
         );
       }
