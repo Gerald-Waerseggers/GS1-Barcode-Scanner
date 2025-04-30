@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { ScanSetup } from "../types";
 import {
   Button,
@@ -866,30 +866,64 @@ const SetupForm: React.FC<SetupFormProps> = ({
   const [stockCount, setStockCount] = useState(initialValues.stockCount);
   const [addRefMode, setAddRefMode] = useState(initialValues.addRefMode);
   const [expiredTime, setExpiredTime] = useState(
-    initialValues.expiredTime ?? 6
+    initialValues.expiredTime ?? 6,
   );
   const [customLocation, setCustomLocation] = useState(false);
+  const [isLocationDropdownOpen, setIsLocationDropdownOpen] = useState(false);
+  const [locationSearchTerm, setLocationSearchTerm] = useState("");
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Get unique location types from the predefined data
   const locationTypes = [...new Set(LOCATION_DATA.map((loc) => loc.type))];
   const [selectedLocationType, setSelectedLocationType] = useState<string>(
-    locationTypes.length > 0 ? locationTypes[0] : ""
+    locationTypes.length > 0 ? locationTypes[0] : "",
   );
   const [filteredLocations, setFilteredLocations] = useState<string[]>([]);
+  const [searchFilteredLocations, setSearchFilteredLocations] = useState<
+    string[]
+  >([]);
 
-  // Filter locations when location type changes
+  // Filter locations when location type changes or search term changes
   useEffect(() => {
     if (selectedLocationType) {
-      const filtered = LOCATION_DATA.filter(
-        (loc) => loc.type === selectedLocationType
+      const typeFiltered = LOCATION_DATA.filter(
+        (loc) => loc.type === selectedLocationType,
       ).map((loc) => loc.location);
-      setFilteredLocations(filtered);
+      setFilteredLocations(typeFiltered);
+
+      // Apply search filter if there's a search term
+      if (locationSearchTerm) {
+        const searchResults = typeFiltered.filter((loc) =>
+          loc.toLowerCase().includes(locationSearchTerm.toLowerCase()),
+        );
+        setSearchFilteredLocations(searchResults);
+      } else {
+        setSearchFilteredLocations(typeFiltered);
+      }
 
       // Reset location when type changes
-      setLocation("");
-      setCustomLocation(false);
+      if (!customLocation) {
+        setLocation("");
+      }
     }
-  }, [selectedLocationType]);
+  }, [selectedLocationType, locationSearchTerm, customLocation]);
+
+  // Effect to handle clicking outside the dropdown
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsLocationDropdownOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -904,7 +938,7 @@ const SetupForm: React.FC<SetupFormProps> = ({
   };
 
   const handleERPFileUpload = async (
-    e: React.ChangeEvent<HTMLInputElement>
+    e: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -914,7 +948,7 @@ const SetupForm: React.FC<SetupFormProps> = ({
 
       if (stockCounts.length > 0) {
         toast.success(
-          `ERP stock count loaded: ${stockCounts.length} items for location, ${allRefs.size} total REFs`
+          `ERP stock count loaded: ${stockCounts.length} items for location, ${allRefs.size} total REFs`,
         );
       } else {
         toast.error("Failed to load ERP stock count for this location");
@@ -934,7 +968,13 @@ const SetupForm: React.FC<SetupFormProps> = ({
     setCustomLocation(!customLocation);
     if (!customLocation) {
       setLocation(""); // Clear location when switching to custom input
+      setIsLocationDropdownOpen(false); // Close dropdown if open
     }
+  };
+
+  const handleSelectLocation = (selectedLocation: string) => {
+    setLocation(selectedLocation);
+    setIsLocationDropdownOpen(false);
   };
 
   return (
@@ -1021,25 +1061,69 @@ const SetupForm: React.FC<SetupFormProps> = ({
                 </div>
               </div>
 
-              {/* Location Dropdown (shown when not in custom mode) */}
+              {/* Searchable Location Dropdown (shown when not in custom mode) */}
               {!customLocation && filteredLocations.length > 0 && (
                 <Field>
                   <Label className="block text-sm font-medium text-gray-700">
                     Location
                   </Label>
-                  <Select
-                    className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md"
-                    value={location}
-                    onChange={(e) => setLocation(e.target.value)}
-                    required
-                  >
-                    <option value="">Select a location</option>
-                    {filteredLocations.map((loc) => (
-                      <option key={loc} value={loc}>
-                        {loc}
-                      </option>
-                    ))}
-                  </Select>
+                  <div className="relative" ref={dropdownRef}>
+                    {/* Display selected location or placeholder */}
+                    <div
+                      className="mt-1 flex items-center w-full px-4 py-2 border border-gray-300 rounded-md bg-white cursor-pointer"
+                      onClick={() =>
+                        setIsLocationDropdownOpen(!isLocationDropdownOpen)
+                      }
+                    >
+                      <span
+                        className={location ? "text-gray-900" : "text-gray-500"}
+                      >
+                        {location || "Select a location"}
+                      </span>
+                    </div>
+
+                    {/* Dropdown panel */}
+                    {isLocationDropdownOpen && (
+                      <div className="absolute z-10 mt-1 w-full bg-white shadow-lg rounded-md border border-gray-300 max-h-96 overflow-hidden">
+                        {/* Search input */}
+                        <div className="p-2 border-b border-gray-200">
+                          <Input
+                            type="text"
+                            placeholder="Search locations..."
+                            value={locationSearchTerm}
+                            onChange={(e) =>
+                              setLocationSearchTerm(e.target.value)
+                            }
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                            autoFocus
+                          />
+                        </div>
+
+                        {/* Dropdown options */}
+                        <div className="max-h-72 overflow-y-auto">
+                          {searchFilteredLocations.length > 0 ? (
+                            searchFilteredLocations.map((loc) => (
+                              <div
+                                key={loc}
+                                className={`px-4 py-2 cursor-pointer hover:bg-gray-100 ${
+                                  location === loc
+                                    ? "bg-blue-50 text-blue-600"
+                                    : ""
+                                }`}
+                                onClick={() => handleSelectLocation(loc)}
+                              >
+                                {loc}
+                              </div>
+                            ))
+                          ) : (
+                            <div className="px-4 py-2 text-gray-500">
+                              No locations found
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </Field>
               )}
 
