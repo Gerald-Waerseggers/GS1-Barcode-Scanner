@@ -46,7 +46,7 @@ export default function BarcodeScanner() {
   const [allERPRefs, setAllERPRefs] = useState<Set<string>>(new Set());
   const allERPRefsLoaded = useRef(false);
   const [lastScannedItem, setLastScannedItem] = useState<ScanRecord | null>(
-    null
+    null,
   );
   const [pendingScan, setPendingScan] = useState<{
     data: Partial<ScanRecord>;
@@ -103,7 +103,7 @@ export default function BarcodeScanner() {
       // Helper function to check if a date is expired
       const isDateExpired = (
         dateStr: string | undefined,
-        expiryThresholdMonths: number
+        expiryThresholdMonths: number,
       ) => {
         if (!dateStr) return false;
         const date = new Date();
@@ -120,14 +120,14 @@ export default function BarcodeScanner() {
             (scan) =>
               scan.ref === parsedData.ref &&
               (scan.batchLot || "") === (parsedData.batchLot || "") &&
-              scan.location === location
+              scan.location === location,
           );
         } else if (parsedData.gtin) {
           return prevScans.findIndex(
             (scan) =>
               scan.gtin === parsedData.gtin &&
               (scan.batchLot || "") === (parsedData.batchLot || "") &&
-              scan.location === location
+              scan.location === location,
           );
         }
         return -1;
@@ -141,7 +141,7 @@ export default function BarcodeScanner() {
       const expiryThresholdMonths = setupInfo.expiredTime || 6;
       const isItemExpired = isDateExpired(
         parsedData.expirationDate,
-        expiryThresholdMonths
+        expiryThresholdMonths,
       );
 
       // Create a copy of scans to update
@@ -173,7 +173,7 @@ export default function BarcodeScanner() {
         // Check if existing item is expired
         const isExistingExpired = isDateExpired(
           existingScan.expirationDate,
-          expiryThresholdMonths
+          expiryThresholdMonths,
         );
 
         if (isExistingExpired) {
@@ -208,7 +208,7 @@ export default function BarcodeScanner() {
           updatedScans[currentLocationIndex] = updatedScan;
 
           toast.success(
-            `Incremented quantity for ${existingScan.ref || existingScan.gtin}`
+            `Incremented quantity for ${existingScan.ref || existingScan.gtin}`,
           );
           playSound("success");
 
@@ -221,8 +221,8 @@ export default function BarcodeScanner() {
 
       // CASE 3: New scan
       const newScan: ScanRecord = {
-        timestamp: new Date().toISOString(),
         ...parsedData,
+        timestamp: new Date().toISOString(),
         storageSite: setupInfo.storageSite,
         location: isItemExpired ? "MMPER" : setupInfo.location,
         quantity: 1,
@@ -320,7 +320,7 @@ export default function BarcodeScanner() {
           });
 
           toast.error(
-            `Please scan second barcode to complete missing information: ${needsInfo.join(", ")}`
+            `Please scan second barcode to complete missing information: ${needsInfo.join(", ")}`,
           );
           return;
         }
@@ -345,7 +345,7 @@ export default function BarcodeScanner() {
         });
 
         toast.error(
-          `Please scan second barcode to add: ${needsInfo.join(", ")}`
+          `Please scan second barcode to add: ${needsInfo.join(", ")}`,
         );
         setError(null);
         return;
@@ -398,8 +398,8 @@ export default function BarcodeScanner() {
   const handleSaveEdit = (updatedScan: ScanRecord) => {
     setScans((prev) =>
       prev.map((scan) =>
-        scan.timestamp === updatedScan.timestamp ? updatedScan : scan
-      )
+        scan.timestamp === updatedScan.timestamp ? updatedScan : scan,
+      ),
     );
     setIsEditModalOpen(false);
     setEditingScan(null);
@@ -468,7 +468,7 @@ export default function BarcodeScanner() {
     } catch (err) {
       toast.error((err as Error).message);
       setError(
-        err instanceof Error ? err.message : "Invalid manual entry format"
+        err instanceof Error ? err.message : "Invalid manual entry format",
       );
       playSound("alert");
     }
@@ -476,7 +476,7 @@ export default function BarcodeScanner() {
 
   const handleSetChange = (scan: ScanRecord, isSet: boolean) => {
     setScans((prev) =>
-      prev.map((s) => (s.timestamp === scan.timestamp ? { ...s, isSet } : s))
+      prev.map((s) => (s.timestamp === scan.timestamp ? { ...s, isSet } : s)),
     );
   };
 
@@ -504,14 +504,14 @@ export default function BarcodeScanner() {
       // Create a set of existing keys to avoid duplicates
       const existingKeys = new Set(
         zeroCountRecords.map(
-          (record) => `${record.ref}-${record.batchLot}-${record.location}`
-        )
+          (record) => `${record.ref}-${record.batchLot}-${record.location}`,
+        ),
       );
 
       // Filter out any existing scans that match the zero count records
       const filteredScans = newScans.filter(
         (scan) =>
-          !existingKeys.has(`${scan.ref}-${scan.batchLot}-${scan.location}`)
+          !existingKeys.has(`${scan.ref}-${scan.batchLot}-${scan.location}`),
       );
 
       // Combine the filtered scans with the new zero count records
